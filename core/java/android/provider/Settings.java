@@ -5444,6 +5444,11 @@ public final class Settings {
          */
         public static final String NETWORK_TRAFFIC_LAYOUT = "network_traffic_layout";
 
+        /**
+         * @hide
+         */
+        public static final String ROAMING_INDICATOR_ICON = "roaming_indicator_icon";
+
         /** @hide */
         public static final String BACK_GESTURE_HAPTIC = "back_gesture_haptic";
 
