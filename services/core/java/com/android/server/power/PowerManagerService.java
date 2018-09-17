@@ -1055,6 +1055,8 @@ public final class PowerManagerService extends SystemService
     private static native boolean nativeSetPowerMode(int mode, boolean enabled);
     private static native boolean nativeForceSuspend();
 
+    private boolean mForceNavbar;
+
     // Whether proximity check on wake is enabled by default
     private boolean mProximityWakeEnabledByDefaultConfig;
 
@@ -1411,6 +1413,9 @@ public final class PowerManagerService extends SystemService
         resolver.registerContentObserver(Settings.System.getUriFor(
                 Settings.System.SMART_CHARGING_RESUME_LEVEL),
                 false, mSettingsObserver, UserHandle.USER_ALL);
+        resolver.registerContentObserver(Settings.System.getUriFor(
+                Settings.System.FORCE_SHOW_NAVBAR),
+                false, mSettingsObserver, UserHandle.USER_ALL);
 
         IVrManager vrManager = IVrManager.Stub.asInterface(getBinderService(Context.VR_SERVICE));
         if (vrManager != null) {
@@ -1579,6 +1584,10 @@ public final class PowerManagerService extends SystemService
         mSmartChargingResumeLevel = Settings.System.getIntForUser(resolver,
                 Settings.System.SMART_CHARGING_RESUME_LEVEL,
                 mSmartChargingResumeLevelDefaultConfig, UserHandle.USER_CURRENT);
+
+        mForceNavbar = Settings.System.getIntForUser(resolver,
+                Settings.System.FORCE_SHOW_NAVBAR,
+                0, UserHandle.USER_CURRENT) == 1;
 
         mDirty |= DIRTY_SETTINGS;
     }
