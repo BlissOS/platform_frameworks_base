@@ -294,6 +294,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
             "system:" + Settings.System.LESS_BORING_HEADS_UP;
     private static final String RETICKER_STATUS =
             "system:" + Settings.System.RETICKER_STATUS;
+    private static final String FORCE_SHOW_NAVBAR =
+            "customsystem:" + Settings.System.FORCE_SHOW_NAVBAR;
 
     private static final String BANNER_ACTION_CANCEL =
             "com.android.systemui.statusbar.banner_action_cancel";
@@ -954,6 +956,18 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
 
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
 
+        mNeedsNavigationBar = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_showNavigationBar);
+        // Allow a system property to override this. Used by the emulator.
+        // See also hasNavigationBar().
+        String navBarOverride = SystemProperties.get("qemu.hw.mainkeys");
+        if ("1".equals(navBarOverride)) {
+            mNeedsNavigationBar = false;
+        } else if ("0".equals(navBarOverride)) {
+            mNeedsNavigationBar = true;
+        }
+
+        mTunerService.addTunable(this, FORCE_SHOW_NAVBAR);
         mTunerService.addTunable(this, QS_TRANSPARENCY);
         mTunerService.addTunable(this, LESS_BORING_HEADS_UP);
         mTunerService.addTunable(this, RETICKER_STATUS);
@@ -3971,6 +3985,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
     protected KeyguardManager mKeyguardManager;
     private final DeviceProvisionedController mDeviceProvisionedController;
 
+    private boolean mNeedsNavigationBar;
     private final NavigationBarController mNavigationBarController;
     private final AccessibilityFloatingMenuController mAccessibilityFloatingMenuController;
 
@@ -4272,7 +4287,22 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
                 break;
             default:
                 break;
-         }
+        }
+        if (FORCE_SHOW_NAVBAR.equals(key) && mDisplayId == Display.DEFAULT_DISPLAY &&
+                mWindowManagerService != null) {
+            boolean forcedVisibility = mNeedsNavigationBar ||
+                    TunerService.parseIntegerSwitch(newValue, false);
+            boolean hasNavbar = getNavigationBarView() != null;
+            if (forcedVisibility) {
+                if (!hasNavbar) {
+                    mNavigationBarController.onDisplayReady(mDisplayId);
+                }
+            } else {
+                if (hasNavbar) {
+                    mNavigationBarController.onDisplayRemoved(mDisplayId);
+                }
+            }
+        }
     }
 
     // End Extra BaseStatusBarMethods.
