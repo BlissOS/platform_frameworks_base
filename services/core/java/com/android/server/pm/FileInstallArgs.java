@@ -174,7 +174,6 @@ class FileInstallArgs extends InstallArgs {
 
         if (!onIncremental && !SELinux.restoreconRecursive(afterCodeFile)) {
             Slog.w(TAG, "Failed to restorecon");
-            return false;
         }
 
         // Reflect the rename internally
