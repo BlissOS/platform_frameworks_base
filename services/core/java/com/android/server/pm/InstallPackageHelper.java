@@ -1977,8 +1977,6 @@ final class InstallPackageHelper {
 
         if (!onIncremental && !SELinux.restoreconRecursive(afterCodeFile)) {
             Slog.w(TAG, "Failed to restorecon");
-            throw new PrepareFailure(PackageManager.INSTALL_FAILED_MEDIA_UNAVAILABLE,
-                    "Failed to restorecon");
         }
 
         // Reflect the rename internally
