@@ -78,4 +78,7 @@
     <string name="weather_condition_wind">Windy</string>
     <string name="weather_condition_mist">Misty</string>
 
+    <!-- Navbar -->
+    <string name="systemui_tuner_navbar_title">Layout</string>
+
 </resources>
