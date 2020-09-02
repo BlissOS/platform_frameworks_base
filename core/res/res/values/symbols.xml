@@ -4932,4 +4932,7 @@
   <java-symbol type="anim" name="activity_freeform_open_exit" />
   <java-symbol type="anim" name="activity_freeform_close_enter" />
   <java-symbol type="anim" name="activity_freeform_close_exit" />
+  <!-- region @boringdroid -->
+  <java-symbol type="dimen" name="decor_corner_radius" />
+  <!-- endregion -->
 </resources>
