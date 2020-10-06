@@ -137,4 +137,6 @@ interface IPowerManager
 
     // Lineage custom API
     void wakeUpWithProximityCheck(long time, int reason, String details, String opPackageName);
+    // LMODroid custom API
+    void setKeyboardVisibility(boolean visible);
 }
