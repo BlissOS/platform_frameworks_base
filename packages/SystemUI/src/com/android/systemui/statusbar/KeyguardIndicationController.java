@@ -29,6 +29,7 @@ import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.hardware.biometrics.BiometricSourceType;
 import android.hardware.face.FaceManager;
 import android.hardware.fingerprint.FingerprintManager;
@@ -42,16 +43,18 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
-
 import com.airbnb.lottie.LottieAnimationView;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IBatteryStats;
 import com.android.internal.widget.ViewClippingUtil;
+import com.android.internal.util.bliss.FodUtils;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
 import com.android.settingslib.Utils;
@@ -70,6 +73,7 @@ import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.tuner.TunerService;
 import com.android.systemui.util.wakelock.SettableWakeLock;
 import com.android.systemui.util.wakelock.WakeLock;
+import vendor.lineage.biometrics.fingerprint.inscreen.V1_0.IFingerprintInscreen;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -108,6 +112,7 @@ public class KeyguardIndicationController implements StateListener,
     private KeyguardIndicationTextView mDisclosure;
     private LottieAnimationView mChargingIndicationView;
     private int mChargingIndication = 1;
+    private int mFODPositionY = 0;
     private final IBatteryStats mBatteryInfo;
     private final SettableWakeLock mWakeLock;
     private final DockManager mDockManager;
@@ -134,6 +139,7 @@ public class KeyguardIndicationController implements StateListener,
     private int mChargingSpeed;
     private double mChargingWattage;
     private int mBatteryLevel;
+    private boolean mBatteryPresent = true;
     private long mChargingTimeRemaining;
     private float mDisclosureMaxAlpha;
     private String mMessageToShowOnScreenOn;
@@ -207,11 +213,22 @@ public class KeyguardIndicationController implements StateListener,
         mTextView = indicationArea.findViewById(R.id.keyguard_indication_text);
         mInitialTextColorState = mTextView != null ?
                 mTextView.getTextColors() : ColorStateList.valueOf(Color.WHITE);
-        mChargingIndicationView = (LottieAnimationView) indicationArea.findViewById(
-                R.id.charging_indication);
-        updateChargingIndicationStyle();
         mDisclosure = indicationArea.findViewById(R.id.keyguard_indication_enterprise_disclosure);
         mDisclosureMaxAlpha = mDisclosure.getAlpha();
+       mChargingIndicationView = (LottieAnimationView) indicationArea.findViewById(
+                R.id.charging_indication);
+        updateChargingIndicationStyle();
+        if (hasActiveInDisplayFp()) {
+            try {
+                IFingerprintInscreen daemon = IFingerprintInscreen.getService();
+                mFODPositionY = daemon.getPositionY();
+            } catch (RemoteException e) {
+                // do nothing
+            }
+            if (mFODPositionY <= 0) {
+                mFODPositionY = 0;
+            }
+        }
         updateIndication(false /* animate */);
         updateDisclosure();
 
@@ -426,81 +443,96 @@ public class KeyguardIndicationController implements StateListener,
             mWakeLock.setAcquired(false);
         }
 
-        if (mVisible) {
-            // Walk down a precedence-ordered list of what indication
-            // should be shown based on user or device state
-            if (mDozing) {
-                // When dozing we ignore any text color and use white instead, because
-                // colors can be hard to read in low brightness.
-                mTextView.setTextColor(Color.WHITE);
-                if (!TextUtils.isEmpty(mTransientIndication)) {
-                    mTextView.switchIndication(mTransientIndication);
-                } else if (!TextUtils.isEmpty(mAlignmentIndication)) {
-                    mTextView.switchIndication(mAlignmentIndication);
-                    mTextView.setTextColor(mContext.getColor(R.color.misalignment_text_color));
-                } else if (mPowerPluggedIn || mEnableBatteryDefender) {
-                    String indication = computePowerIndication();
-                    if (animate) {
-                        animateText(mTextView, indication);
-                    } else {
-                        mTextView.switchIndication(indication);
-                    }
-                } else {
-                    String percentage = NumberFormat.getPercentInstance()
-                            .format(mBatteryLevel / 100f);
-                    mTextView.switchIndication(percentage);
-                }
-                updateChargingIndication();
-                return;
-            }
+        if (!mVisible) {
+            return;
+        }
 
-            int userId = KeyguardUpdateMonitor.getCurrentUser();
-            String trustGrantedIndication = getTrustGrantedIndication();
-            String trustManagedIndication = getTrustManagedIndication();
+        // A few places might need to hide the indication, so always start by making it visible
+        mIndicationArea.setVisibility(View.VISIBLE);
 
-            String powerIndication = null;
-            if (mPowerPluggedIn || mEnableBatteryDefender) {
-                powerIndication = computePowerIndication();
-            }
-
-            boolean isError = false;
-            if (!mKeyguardUpdateMonitor.isUserUnlocked(userId)) {
-                mTextView.switchIndication(com.android.internal.R.string.lockscreen_storage_locked);
-            } else if (!TextUtils.isEmpty(mTransientIndication)) {
+        // Walk down a precedence-ordered list of what indication
+        // should be shown based on user or device state
+        if (mDozing) {
+            // When dozing we ignore any text color and use white instead, because
+            // colors can be hard to read in low brightness.
+            mTextView.setTextColor(Color.WHITE);
+            if (!TextUtils.isEmpty(mTransientIndication)) {
                 mTextView.switchIndication(mTransientIndication);
-                isError = mTransientTextIsError;
-            } else if (!TextUtils.isEmpty(trustGrantedIndication)
-                    && mKeyguardUpdateMonitor.getUserHasTrust(userId)) {
-                if (powerIndication != null) {
-                    String indication = mContext.getResources().getString(
-                            R.string.keyguard_indication_trust_unlocked_plugged_in,
-                            trustGrantedIndication, powerIndication);
-                    mTextView.switchIndication(indication);
-                } else {
-                    mTextView.switchIndication(trustGrantedIndication);
-                }
+            } else if (!mBatteryPresent) {
+                // If there is no battery detected, hide the indication and bail
+                mIndicationArea.setVisibility(View.GONE);
             } else if (!TextUtils.isEmpty(mAlignmentIndication)) {
                 mTextView.switchIndication(mAlignmentIndication);
-                isError = true;
+                mTextView.setTextColor(mContext.getColor(R.color.misalignment_text_color));
             } else if (mPowerPluggedIn || mEnableBatteryDefender) {
-                if (DEBUG_CHARGING_SPEED) {
-                    powerIndication += ",  " + (mChargingWattage / 1000) + " mW";
-                }
+                String indication = computePowerIndication();
                 if (animate) {
-                    animateText(mTextView, powerIndication);
+                    animateText(mTextView, indication);
                 } else {
-                    mTextView.switchIndication(powerIndication);
+                    mTextView.switchIndication(indication);
                 }
-            } else if (!TextUtils.isEmpty(trustManagedIndication)
-                    && mKeyguardUpdateMonitor.getUserTrustIsManaged(userId)
-                    && !mKeyguardUpdateMonitor.getUserHasTrust(userId)) {
-                mTextView.switchIndication(trustManagedIndication);
             } else {
-                mTextView.switchIndication(mRestingIndication);
+                String percentage = NumberFormat.getPercentInstance()
+                        .format(mBatteryLevel / 100f);
+                mTextView.switchIndication(percentage);
             }
-            mTextView.setTextColor(isError ? Utils.getColorError(mContext)
-                    : mInitialTextColorState);
-            updateChargingIndication();
+                updateChargingIndication();
+            return;
+        }
+
+        int userId = KeyguardUpdateMonitor.getCurrentUser();
+        String trustGrantedIndication = getTrustGrantedIndication();
+        String trustManagedIndication = getTrustManagedIndication();
+
+        String powerIndication = null;
+        if (mPowerPluggedIn || mEnableBatteryDefender) {
+            powerIndication = computePowerIndication();
+        }
+
+        // Some cases here might need to hide the indication (if the battery is not present)
+        boolean hideIndication = false;
+        boolean isError = false;
+        if (!mKeyguardUpdateMonitor.isUserUnlocked(userId)) {
+            mTextView.switchIndication(com.android.internal.R.string.lockscreen_storage_locked);
+        } else if (!TextUtils.isEmpty(mTransientIndication)) {
+                mTextView.switchIndication(mTransientIndication);
+            isError = mTransientTextIsError;
+        } else if (!TextUtils.isEmpty(trustGrantedIndication)
+                && mKeyguardUpdateMonitor.getUserHasTrust(userId)) {
+            if (powerIndication != null) {
+                String indication = mContext.getResources().getString(
+                                R.string.keyguard_indication_trust_unlocked_plugged_in,
+                                trustGrantedIndication, powerIndication);
+                mTextView.switchIndication(indication);
+                hideIndication = !mBatteryPresent;
+            } else {
+                mTextView.switchIndication(trustGrantedIndication);
+            }
+        } else if (!TextUtils.isEmpty(mAlignmentIndication)) {
+            mTextView.switchIndication(mAlignmentIndication);
+            isError = true;
+            hideIndication = !mBatteryPresent;
+        } else if (mPowerPluggedIn || mEnableBatteryDefender) {
+            if (DEBUG_CHARGING_SPEED) {
+                powerIndication += ",  " + (mChargingWattage / 1000) + " mW";
+            }
+            if (animate) {
+                animateText(mTextView, powerIndication);
+            } else {
+                mTextView.switchIndication(powerIndication);
+            }
+            hideIndication = !mBatteryPresent;
+        } else if (!TextUtils.isEmpty(trustManagedIndication)
+                && mKeyguardUpdateMonitor.getUserTrustIsManaged(userId)
+                && !mKeyguardUpdateMonitor.getUserHasTrust(userId)) {
+            mTextView.switchIndication(trustManagedIndication);
+        } else {
+            mTextView.switchIndication(mRestingIndication);
+        }
+        mTextView.setTextColor(isError ? Utils.getColorError(mContext)
+                : mInitialTextColorState);
+        if (hideIndication) {
+            mIndicationArea.setVisibility(View.GONE);
         }
     }
 
@@ -568,11 +600,49 @@ public class KeyguardIndicationController implements StateListener,
 
     private void updateChargingIndication() {
         if (mChargingIndication > 0 && mPowerPluggedIn) {
+            if (hasActiveInDisplayFp()) {
+                if (mFODPositionY != 0) {
+                    // Get screen height
+                    WindowManager windowManager = mContext.getSystemService(WindowManager.class);
+                    Display defaultDisplay = windowManager.getDefaultDisplay();
+                    Point size = new Point();
+                    defaultDisplay.getRealSize(size);
+                    int screenHeight = size.y;
+                    // Correct FOD position if cutout is hidden
+                    int statusbarHeight = mContext.getResources().getDimensionPixelSize(
+                            com.android.internal.R.dimen.status_bar_height_portrait);
+                    boolean cutoutMasked = mContext.getResources().getBoolean(
+                            com.android.internal.R.bool.config_maskMainBuiltInDisplayCutout);
+                    int fodPositionY = mFODPositionY;
+                    if (cutoutMasked) {
+                        fodPositionY = mFODPositionY - statusbarHeight;
+                    }
+                    // Get indication text height
+                    int textViewHeight = mTextView.getMeasuredHeight();
+                    // Get bottom margin height
+                    int marginBottom = mContext.getResources().getDimensionPixelSize(
+                            R.dimen.keyguard_indication_margin_bottom_fingerprint_in_display);
+                    // Calculate charging indication margin
+                    int animationMargin = (screenHeight - fodPositionY) - (textViewHeight + marginBottom) + 10;
+                    // Set position of charging indication
+                    ViewGroup.MarginLayoutParams params =
+                            (ViewGroup.MarginLayoutParams) mChargingIndicationView.getLayoutParams();
+                    params.setMargins(0, 0, 0, animationMargin);
+                    mChargingIndicationView.setLayoutParams(params);
+                }
+            }
             mChargingIndicationView.setVisibility(View.VISIBLE);
             mChargingIndicationView.playAnimation();
         } else {
             mChargingIndicationView.setVisibility(View.GONE);
         }
+    }
+
+    private boolean hasActiveInDisplayFp() {
+        boolean hasInDisplayFingerprint = FodUtils.hasFodSupport(mContext);
+        int userId = KeyguardUpdateMonitor.getCurrentUser();
+        FingerprintManager fpm = (FingerprintManager) mContext.getSystemService(Context.FINGERPRINT_SERVICE);
+        return hasInDisplayFingerprint && fpm.getEnrolledFingerprints(userId).size() > 0;
     }
 
     // animates textView - textView moves up and bounces down
@@ -684,7 +754,7 @@ public class KeyguardIndicationController implements StateListener,
         double voltage = 0;
         boolean showbatteryInfo = Settings.System.getIntForUser(mContext.getContentResolver(),
             Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) == 1;
-        if (showbatteryInfo) {
+         if (showbatteryInfo) {
             if (mChargingCurrent > 0) {
                 current = (mChargingCurrent < 5 ? (mChargingCurrent * 1000)
                         : (mChargingCurrent < 4000 ? mChargingCurrent : (mChargingCurrent / 1000)));
@@ -803,6 +873,7 @@ public class KeyguardIndicationController implements StateListener,
         pw.println("  mMessageToShowOnScreenOn: " + mMessageToShowOnScreenOn);
         pw.println("  mDozing: " + mDozing);
         pw.println("  mBatteryLevel: " + mBatteryLevel);
+        pw.println("  mBatteryPresent: " + mBatteryPresent);
         pw.println("  mTextView.getText(): " + (mTextView == null ? null : mTextView.getText()));
         pw.println("  computePowerIndication(): " + computePowerIndication());
     }
@@ -846,6 +917,7 @@ public class KeyguardIndicationController implements StateListener,
             mBatteryLevel = status.level;
             mBatteryOverheated = status.isOverheated();
             mEnableBatteryDefender = mBatteryOverheated && status.isPluggedIn();
+            mBatteryPresent = status.present;
             try {
                 mChargingTimeRemaining = mPowerPluggedIn
                         ? mBatteryInfo.computeChargeTimeRemaining() : -1;
