@@ -1,0 +1,5 @@
+[gerrit]
+host=review.blissos.org
+port=29419
+project=platform_frameworks_base
+defaultbranch=r
