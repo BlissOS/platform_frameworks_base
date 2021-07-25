@@ -5432,6 +5432,12 @@ public final class Settings {
          */
         public static final String PIXEL_NAV_ANIMATION = "pixel_nav_animation";
 
+         /**
+         * Network traffic layout
+         * @hide
+         */
+        public static final String NETWORK_TRAFFIC_LAYOUT = "network_traffic_layout";
+
         /** @hide */
         public static final String BACK_GESTURE_HAPTIC = "back_gesture_haptic";
 
@@ -5570,6 +5576,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(STATUSBAR_CLOCK_DATE_POSITION);
             PRIVATE_SETTINGS.add(NETWORK_TRAFFIC_VIEW_LOCATION);
             PRIVATE_SETTINGS.add(BACK_GESTURE_HAPTIC);
+            PRIVATE_SETTINGS.add(NETWORK_TRAFFIC_LAYOUT);
         }
 
         /**
