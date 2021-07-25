@@ -107,9 +107,6 @@ public class MobileSignalController extends SignalController<
     // 4G instead of LTE
     private int mShow4GUserConfig;
 
-    private boolean mDataDisabledIcon;
-    private boolean mRoamingIconAllowed;
-
     // Volte Icon
     private boolean mVoLTEicon;
     // Volte Icon Style
@@ -117,6 +114,15 @@ public class MobileSignalController extends SignalController<
 
     // VoWiFi Icon
     private int mVoWiFiIcon;
+    // VoWiFi Icon Style
+    private int mVoWiFistyle;
+    private boolean mIsVowifiAvailable;
+
+    // Roaming
+    private boolean mRoamingIconAllowed;
+
+    // Data disabled icon
+    private boolean mDataDisabledIcon;
 
     // TODO: Reduce number of vars passed in, if we have the NetworkController, probably don't
     // need listener lists anymore.
@@ -206,6 +212,12 @@ public class MobileSignalController extends SignalController<
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.VOWIFI_ICON),
                     false,this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.VOWIFI_ICON_STYLE),
+                    false,this, UserHandle.USER_ALL);
+           resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.DATA_DISABLED_ICON), false,
+                    this, UserHandle.USER_ALL);
             updateSettings();
         }
 
@@ -236,6 +248,14 @@ public class MobileSignalController extends SignalController<
         mVoWiFiIcon = Settings.System.getIntForUser(resolver,
                 Settings.System.VOWIFI_ICON, 0,
                 UserHandle.USER_CURRENT);
+        mVoWiFistyle = Settings.System.getIntForUser(resolver,
+                Settings.System.VOWIFI_ICON_STYLE, 0,
+                UserHandle.USER_CURRENT);
+
+        mDataDisabledIcon = Settings.System.getIntForUser(resolver,
+                Settings.System.DATA_DISABLED_ICON, 1,
+                UserHandle.USER_CURRENT) == 1;
+
         mapIconSets();
         updateTelephony();
         notifyListeners();
@@ -465,8 +485,7 @@ public class MobileSignalController extends SignalController<
             }
             boolean dataDisabled = mCurrentState.userSetup
                     && (mCurrentState.iconGroup == TelephonyIcons.DATA_DISABLED
-                    || (mCurrentState.iconGroup == TelephonyIcons.NOT_DEFAULT_DATA
-                            && mCurrentState.defaultDataOff));
+                    || (mCurrentState.iconGroup == TelephonyIcons.NOT_DEFAULT_DATA));
             boolean noInternet = mCurrentState.inetCondition == 0;
             boolean cutOut = dataDisabled || noInternet;
             return SignalDrawable.getState(level, getNumLevels(), cutOut);
@@ -493,7 +512,8 @@ public class MobileSignalController extends SignalController<
             return resId;
         }
 
-        if (mCurrentState.imsRegistered && mVoLTEicon) {
+        if (mCurrentState.imsRegistered && (mCurrentState.voiceCapable ||
+                  mCurrentState.videoCapable) && mVoLTEicon) {
             switch(mVoLTEstyle) {
                 // VoLTE
                 case 1:
@@ -559,11 +579,13 @@ public class MobileSignalController extends SignalController<
         mCurrentState.voiceCapable = tm.isVolteAvailable();
         mCurrentState.videoCapable = tm.isVideoTelephonyAvailable();
         mCurrentState.imsRegistered = mPhone.isImsRegistered(mSubscriptionInfo.getSubscriptionId());
+        mIsVowifiAvailable = tm.isWifiCallingAvailable();
         if (DEBUG) {
             Log.d(mTag, "queryImsState tm=" + tm + " phone=" + mPhone
                     + " voiceCapable=" + mCurrentState.voiceCapable
                     + " videoCapable=" + mCurrentState.videoCapable
-                    + " imsResitered=" + mCurrentState.imsRegistered);
+                    + " imsRegistered=" + mCurrentState.imsRegistered
+                    + " mIsVowifiAvailable=" + mIsVowifiAvailable);
         }
         notifyListenersIfNecessary();
     }
@@ -796,7 +818,7 @@ public class MobileSignalController extends SignalController<
         mCurrentState.roaming = isRoaming() && mRoamingIconAllowed;
         if (isCarrierNetworkChangeActive()) {
             mCurrentState.iconGroup = TelephonyIcons.CARRIER_NETWORK_CHANGE;
-        } else if (isDataDisabled() && !mConfig.alwaysShowDataRatIcon) {
+        } else if (isDataDisabled() && mDataDisabledIcon/*!mConfig.alwaysShowDataRatIcon*/) {
             if (mSubscriptionInfo.getSubscriptionId() != mDefaults.getDefaultDataSubId()) {
                 mCurrentState.iconGroup = TelephonyIcons.NOT_DEFAULT_DATA;
             } else {
@@ -862,15 +884,40 @@ public class MobileSignalController extends SignalController<
 
     private boolean isVowifiAvailable() {
         return mCurrentState.voiceCapable &&  mCurrentState.imsRegistered
-                && mServiceState.getDataNetworkType() == TelephonyManager.NETWORK_TYPE_IWLAN;
+                && (mServiceState.getDataNetworkType() == TelephonyManager.NETWORK_TYPE_IWLAN
+                || mIsVowifiAvailable);
     }
 
     private MobileIconGroup getVowifiIconGroup() {
         if ( isVowifiAvailable() && !isCallIdle() ) {
             return TelephonyIcons.VOWIFI_CALLING;
-        } else if (isVowifiAvailable()) {
-            return TelephonyIcons.VOWIFI;
-        } else {
+        }else if (isVowifiAvailable()) {
+            switch(mVoWiFistyle) {
+                // OOS
+                case 1:
+                    return TelephonyIcons.VOWIFI_ONEPLUS;
+                // Motorola
+                case 2:
+                    return TelephonyIcons.VOWIFI_MOTO;
+                // ASUS
+                case 3:
+                    return TelephonyIcons.VOWIFI_ASUS;
+                // EMUI (Huawei P10)
+                case 4:
+                    return TelephonyIcons.VOWIFI_EMUI;
+                // Simple1
+                case 5:
+                    return TelephonyIcons.VOWIFI_Simple1;
+                // Simple2
+                case 6:
+                    return TelephonyIcons.VOWIFI_Simple2;
+                // Simple3
+                case 7:
+                    return TelephonyIcons.VOWIFI_Simple3;
+                default:
+                    return TelephonyIcons.VOWIFI;
+            }
+        }else {
             return null;
         }
     }

@@ -660,6 +660,10 @@
     <!-- For tether entitlement recheck-->
     <protected-broadcast
         android:name="com.android.server.connectivity.tethering.PROVISIONING_RECHECK_ALARM" />
+
+    <!-- Font service -->
+    <protected-broadcast android:name="com.android.server.ACTION_FONT_CHANGED" />
+
     <!-- ====================================================================== -->
     <!--                          RUNTIME PERMISSIONS                           -->
     <!-- ====================================================================== -->
@@ -4377,6 +4381,13 @@
     <!-- @TestApi @hide Allows testing apk level rollbacks. -->
     <permission android:name="android.permission.TEST_MANAGE_ROLLBACKS"
         android:protectionLevel="signature" />
+
+    <!-- Allows an application to access the font manager
+         @hide -->
+    <permission android:name="android.permission.ACCESS_FONT_MANAGER"
+        android:label="@string/permlab_accessFontManager"
+        android:description="@string/permdesc_accessFontManager"
+        android:protectionLevel="signatureOrSystem" />
 
     <!-- @SystemApi @hide Allows an application to mark other applications as harmful -->
     <permission android:name="android.permission.SET_HARMFUL_APP_WARNINGS"

@@ -19,9 +19,6 @@
     <string name="quick_settings_tiles_extra" translatable="false">
     </string>
 
-    <!-- Allow devices override audio panel location to the left side -->
-    <bool name="config_audioPanelOnLeftSide">false</bool>
-
     <!-- Asus stitch editor component name -->
     <string name="config_stitchEditor">com.asus.stitchimage/com.asus.stitchimage.editor.ScreenshotEditorActivity</string>
 
@@ -30,4 +27,7 @@
 
     <!-- Whether to show VoWiFi icon in the status bar -->
     <bool name="config_display_vowifi">true</bool>
+
+    <!-- Whether to use the mask for the quicksettings icons-->
+    <bool name="config_useMaskForQs">true</bool>
 </resources>
