@@ -239,6 +239,9 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
 
     protected void onMediaVisibilityChanged(Boolean visible) {
         switchTileLayout();
+        if (getTileLayout() != null) {
+            getTileLayout().setMinRows(visible ? 2 : 3);
+        }
         if (mMediaVisibilityChangedListener != null) {
             mMediaVisibilityChangedListener.accept(visible);
         }
@@ -527,6 +530,9 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
         if (mTileLayout != null) {
             mTileLayout.updateResources();
         }
+        if (mCustomizePanel != null) {
+            mCustomizePanel.updateResources();
+        }
     }
 
     protected void updatePadding() {
@@ -619,10 +625,14 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
             mTileLayout = newLayout;
             if (mHost != null) setTiles(mHost.getTiles());
             newLayout.setListening(mListening);
-            if (needsDynamicRowsAndColumns()) {
-                newLayout.setMinRows(horizontal ? 2 : 1);
+            boolean landscapeAndMedia =
+                    horizontal && mUsingMediaPlayer && mMediaHost.getVisible();
+            if (needsDynamicRowsAndColumns() /*expanded qs panel*/) {
+                /* if no media notification allow custom rows/columns,
+                otherwise if landscape and media notification set a fixed value*/
+                newLayout.setMinRows(landscapeAndMedia ? 2 : 1);
                 // Let's use 3 columns to match the current layout
-                newLayout.setMaxColumns(horizontal ? 3 : TileLayout.NO_MAX_COLUMNS);
+                newLayout.setMaxColumns(landscapeAndMedia ? 3 : TileLayout.NO_MAX_COLUMNS);
             }
             updateTileLayoutMargins();
             updateFooterMargin();
@@ -686,6 +696,12 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
         if (mFooter != null) {
             // Then the footer with the settings
             switchToParent(mFooter, parent, index);
+            index++;
+        }
+
+        if (mOPFooterView != null) {
+            // Then the OPFooter with the brightness bar and settings
+            switchToParent(mOPFooterView, parent, index);
         }
     }
 
@@ -963,7 +979,8 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
                     if (!mCustomizePanel.isCustomizing()) {
                         int[] loc = v.getLocationOnScreen();
                         int x = loc[0] + v.getWidth() / 2;
-                        int y = loc[1] + v.getHeight() / 2;
+                        // we subtract getTop, because Pie clipper starts after black area
+                        int y = loc[1] + v.getHeight() / 2 - getTop();
                         mCustomizePanel.show(x, y);
                     }
                 }
@@ -1008,7 +1025,7 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
         }
         r.tile.setDetailListening(show);
         int x = r.tileView.getLeft() + r.tileView.getWidth() / 2;
-        int y = r.tileView.getDetailY() + mTileLayout.getOffsetTop(r) + getTop();
+        int y = r.tileView.getDetailY() + mTileLayout.getOffsetTop(r);
         handleShowDetailImpl(r, show, x, y);
     }
 
@@ -1100,6 +1117,10 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
         }
     }
 
+    int getVisualTilePadding() {
+        return mVisualTilePadding;
+    }
+
     public void setContentMargins(int startMargin, int endMargin) {
         // Only some views actually want this content padding, others want to go all the way
         // to the edge like the brightness slider
@@ -1120,7 +1141,7 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
                 footerMargin = mFooterMarginStartHorizontal;
                 indicatorMargin = footerMargin - mVisualMarginEnd;
             }
-            updateFooterMargins(mFooter, footerMargin, 0);
+            //updateFooterMargins(mFooter, footerMargin, 0);
             // The page indicator isn't centered anymore because of the visual positioning.
             // Let's fix it by adding some margin
             if (mFooterPageIndicator != null) {
@@ -1144,11 +1165,11 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
     }
 
     private void updateTileLayoutMargins() {
-        int marginEnd = mVisualMarginEnd;
         if (mUsingHorizontalLayout) {
-            marginEnd = 0;
+            mTileLayout.setSidePadding(0, 0);
+        } else {
+            mTileLayout.setSidePadding(mVisualMarginStart, mVisualMarginEnd);
         }
-        updateMargins((View) mTileLayout, mVisualMarginStart, marginEnd);
     }
 
     private void updateDividerMargin() {
@@ -1266,6 +1287,8 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
         int getOffsetTop(TileRecord tile);
 
         boolean updateResources();
+
+        void setSidePadding(int paddingStart, int paddingEnd);
 
         void setListening(boolean listening);
 
