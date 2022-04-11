@@ -6697,6 +6697,12 @@ public final class Settings {
         public static final String CAMERA_LAUNCH = "camera_launch";
 
         /**
+         * Whether to enable taskbar.
+         * @hide
+         */
+        public static final String ENABLE_TASKBAR = "enable_taskbar";
+
+        /**
          * Action to perform when the screen edge is long-swiped. (Default is 0)
          * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
