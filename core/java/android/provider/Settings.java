@@ -6905,6 +6905,11 @@ public final class Settings {
         public static final String STATUS_BAR_CLOCK_AUTO_HIDE_LAUNCHER = "status_bar_clock_auto_hide_launcher";
 
         /**
+         * @hide
+         */
+        public static final String TRANSIENT_TASK_MODE = "transient_task_mode";
+
+        /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
          * it to PRIVATE_SETTINGS below. Also add a validator that can validate
@@ -7721,6 +7726,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(SWAP_VOLUME_KEYS_ON_ROTATION);
             PRIVATE_SETTINGS.add(AUTO_BRIGHTNESS_ONE_SHOT);
             PRIVATE_SETTINGS.add(FORCE_FULLSCREEN_CUTOUT_APPS);
+            PRIVATE_SETTINGS.add(TRANSIENT_TASK_MODE);
         }
 
         /**
@@ -7735,6 +7741,7 @@ public final class Settings {
             CLONE_TO_MANAGED_PROFILE.add(SOUND_EFFECTS_ENABLED);
             CLONE_TO_MANAGED_PROFILE.add(TEXT_SHOW_PASSWORD);
             CLONE_TO_MANAGED_PROFILE.add(TIME_12_24);
+            CLONE_TO_MANAGED_PROFILE.add(TRANSIENT_TASK_MODE);
         }
 
         /** @hide */
