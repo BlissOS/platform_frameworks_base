@@ -6207,6 +6207,11 @@ public final class Settings {
         public static final String ENABLE_RIPPLE_EFFECT = "enable_ripple_effect";
 
         /**
+         * @hide
+         */
+        public static final String TRANSISTENT_TASK_MODE = "transistent_task_mode";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -6400,6 +6405,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(OMNIJAWS_WEATHER_ICON_PACK);
 	    PRIVATE_SETTINGS.add(OMNI_LOCKSCREEN_WEATHER_ENABLED);
 	    PRIVATE_SETTINGS.add(AICP_LOCKSCREEN_WEATHER_STYLE);
+            PRIVATE_SETTINGS.add(TRANSISTENT_TASK_MODE);
         }
 
         /**
@@ -6414,6 +6420,7 @@ public final class Settings {
             CLONE_TO_MANAGED_PROFILE.add(SOUND_EFFECTS_ENABLED);
             CLONE_TO_MANAGED_PROFILE.add(TEXT_SHOW_PASSWORD);
             CLONE_TO_MANAGED_PROFILE.add(TIME_12_24);
+            CLONE_TO_MANAGED_PROFILE.add(TRANSISTENT_TASK_MODE);
         }
 
         /** @hide */
