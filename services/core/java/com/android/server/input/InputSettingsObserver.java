@@ -59,6 +59,8 @@ class InputSettingsObserver extends ContentObserver {
                         (reason) -> updateMousePointerSpeed()),
                 Map.entry(Settings.System.getUriFor(Settings.System.TOUCHPAD_POINTER_SPEED),
                         (reason) -> updateTouchpadPointerSpeed()),
+                Map.entry(Settings.System.getUriFor(Settings.System.PREVENT_POINTER_ACCELERATION),
+                        (reason) -> updatePreventPointerAcceleration()),
                 Map.entry(Settings.System.getUriFor(Settings.System.TOUCHPAD_NATURAL_SCROLLING),
                         (reason) -> updateTouchpadNaturalScrollingEnabled()),
                 Map.entry(Settings.System.getUriFor(Settings.System.TOUCHPAD_TAP_TO_CLICK),
@@ -125,8 +127,18 @@ class InputSettingsObserver extends ContentObserver {
                 InputSettings.MAX_POINTER_SPEED);
     }
 
+    private int getPreventPointerAccelerationSetting() {
+        int preventPointerAcceleration = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.PREVENT_POINTER_ACCELERATION, 0 ,UserHandle.USER_CURRENT);
+        return Math.min(Math.max(preventPointerAcceleration, 0), 3);
+    }
+
     private void updateMousePointerSpeed() {
         mNative.setPointerSpeed(getPointerSpeedValue(Settings.System.POINTER_SPEED));
+    }
+
+    private void updatePreventPointerAcceleration() {
+        mNative.setPreventPointerAcceleration(getPreventPointerAccelerationSetting());
     }
 
     private void updateTouchpadPointerSpeed() {
