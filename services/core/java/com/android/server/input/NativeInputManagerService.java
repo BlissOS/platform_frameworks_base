@@ -121,6 +121,8 @@ interface NativeInputManagerService {
 
     void setPreventPointerAcceleration(int preventPointerAcceleration);
 
+    void setForceMouseAsTouch(boolean forceMouseAsTouch);
+
     void setPointerAcceleration(float acceleration);
 
     void setTouchpadPointerSpeed(int speed);
@@ -351,6 +353,9 @@ interface NativeInputManagerService {
 
         @Override
         public native void setPreventPointerAcceleration(int preventPointerAcceleration);
+
+        @Override
+        public native void setForceMouseAsTouch(boolean forceMouseAsTouch);
 
         @Override
         public native void setPointerAcceleration(float acceleration);

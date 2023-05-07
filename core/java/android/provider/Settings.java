@@ -6317,6 +6317,11 @@ public final class Settings {
         public static final String PREVENT_POINTER_ACCELERATION = "prevent_pointer_acceleration";
 
         /**
+         * @hide
+         */
+        public static final String FORCE_MOUSE_AS_TOUCH = "force_mouse_as_touch";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -6718,6 +6723,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(SWAP_VOLUME_KEYS_ON_ROTATION);
             PRIVATE_SETTINGS.add(TRANSIENT_TASK_MODE);
             PRIVATE_SETTINGS.add(PREVENT_POINTER_ACCELERATION);
+            PRIVATE_SETTINGS.add(FORCE_MOUSE_AS_TOUCH);
         }
 
         /**
@@ -6733,6 +6739,7 @@ public final class Settings {
             CLONE_TO_MANAGED_PROFILE.add(TEXT_SHOW_PASSWORD);
             CLONE_TO_MANAGED_PROFILE.add(TIME_12_24);
             CLONE_TO_MANAGED_PROFILE.add(TRANSIENT_TASK_MODE);
+            CLONE_TO_MANAGED_PROFILE.add(FORCE_MOUSE_AS_TOUCH);
         }
 
         /** @hide */
