@@ -77,6 +77,11 @@
         android:title="@string/volume_ringer_status_vibrate" />
 
     <com.android.systemui.tuner.StatusBarSwitch
+        android:icon="@drawable/ic_statusbar_volte"
+        android:key="ims"
+        android:title="@string/status_bar_ims" />
+
+    <com.android.systemui.tuner.StatusBarSwitch
         android:icon="@drawable/ic_statusbar_wifi"
         android:key="wifi"
         android:title="@string/quick_settings_wifi_label" />
@@ -108,6 +113,16 @@
         android:title="@string/battery"
         android:summary="%s"
         android:entries="@array/battery_options" /> -->
+
+    <com.android.systemui.tuner.StatusBarSwitch
+        android:key="vpn"
+        android:title="@string/status_bar_vpn"
+        android:icon="@drawable/ic_statusbar_vpn" />
+
+    <com.android.systemui.tuner.StatusBarSwitch
+        android:key="data_saver"
+        android:title="@string/status_bar_data_saver"
+        android:icon="@drawable/ic_statusbar_data_saver" />
 
     <com.android.systemui.tuner.StatusBarSwitch
         android:icon="@drawable/ic_statusbar_alarm"

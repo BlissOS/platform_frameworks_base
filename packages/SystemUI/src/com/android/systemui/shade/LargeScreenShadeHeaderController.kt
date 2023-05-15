@@ -269,10 +269,6 @@ class LargeScreenShadeHeaderController @Inject constructor(
         }
         batteryMeterViewController.init()
 
-        // battery settings same as in QS icons
-        batteryMeterViewController.ignoreTunerUpdates()
-        batteryIcon.setPercentShowMode(BatteryMeterView.MODE_ESTIMATE)
-
         iconManager = tintedIconManagerFactory.create(iconContainer, StatusBarLocation.QS)
         iconManager.setTint(
             Utils.getColorAttrDefaultColor(header.context, android.R.attr.textColorPrimary)
@@ -284,13 +280,6 @@ class LargeScreenShadeHeaderController @Inject constructor(
             .setQSCarrierGroup(qsCarrierGroup)
             .build()
 
-        if (!combinedHeaders) {
-            // In the new header, we display alarm icon but we ignore it when not using the new
-            // headers.
-            iconContainer.addIgnoredSlot(
-                    context.getString(com.android.internal.R.string.status_bar_alarm_clock)
-            )
-        }
         if (combinedHeaders) {
             privacyIconsController.onParentVisible()
         }

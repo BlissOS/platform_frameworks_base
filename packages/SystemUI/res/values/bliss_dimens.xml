@@ -52,7 +52,19 @@
 
     <!-- Width of the battery icon in the status bar when set to circle style. -->
     <dimen name="status_bar_battery_icon_circle_width">14.5dp</dimen>
+    
+    <!-- Height of the landscape battery icon in the status bar. -->
+    <dimen name="status_bar_battery_icon_height_landscape">12.5dp</dimen>
+    <!-- Width of the landscape battery icon in the status bar. -->
+    <dimen name="status_bar_battery_icon_width_landscape">24dp</dimen>
 
     <!-- OmniWeather image size -->
     <dimen name="current_weather_image_size">30dp</dimen>
+
+    <!-- Old style mobile data indicators -->
+    <dimen name="status_bar_mobile_signal_with_type_height">18dp</dimen>
+    <dimen name="status_bar_mobile_signal_with_type_width">18dp</dimen>
+    <dimen name="status_bar_mobile_signal_width">16dp</dimen>
+    <dimen name="status_bar_mobile_type_height">9dp</dimen>
+    <dimen name="status_bar_mobile_type_width">12dp</dimen>
 </resources>

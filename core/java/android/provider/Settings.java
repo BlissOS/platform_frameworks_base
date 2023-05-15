@@ -5532,16 +5532,7 @@ public final class Settings {
          * @hide
          */
         @Readable
-        public static final String SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
-
-        /**
-         * Setting to determine whether or not to show the battery percentage in the status bar when charging
-         *    0 - Don't show percentage
-         *    1 - Show percentage
-         * @hide
-         */
-        @Readable
-        public static final String SHOW_BATTERY_PERCENT_CHARGING = "status_bar_show_battery_percent_charging";
+        public static final String SHOW_BATTERY_PERCENT = "dummy_show_battery_percent";
 
         /**
          * Whether or not to enable multiple audio focus.
@@ -5974,22 +5965,6 @@ public final class Settings {
         public static final String QS_SHOW_BATTERY_ESTIMATE = "qs_show_battery_estimate";
 
         /**
-         * Style of battery to show.
-         * 0 = protrait (default)
-         * 1 = circle
-         * 2 = text
-         * @hide
-         */
-        @Readable
-        public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
-
-        /**
-         * Whether to draw battery percent inside the icon
-         * @hide
-         */
-        public static final String SHOW_BATTERY_PERCENT_INSIDE = "status_bar_show_battery_percent_inside";
-
-        /**
          * Whether to show the battery info on the lockscreen while charging
          * @hide
          */
@@ -6212,6 +6187,27 @@ public final class Settings {
         public static final String TRANSISTENT_TASK_MODE = "transistent_task_mode";
 
         /**
+         * Battery style
+         * @hide
+         */
+        public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
+
+        /**
+          * Statusbar Battery %
+          * 0: Hide the battery percentage
+          * 1: Display the battery percentage inside the icon
+          * 2: Display the battery percentage next to Icon
+          * @hide
+          */
+        public static final String STATUS_BAR_SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
+
+        /**
+         * Show battery percentage when charging
+         * @hide
+         */
+        public static final String STATUS_BAR_BATTERY_TEXT_CHARGING = "status_bar_battery_text_charging";
+
+        /**
          * @hide
          */
         public static final String PREVENT_POINTER_ACCELERATION = "prevent_pointer_acceleration";
@@ -6220,6 +6216,11 @@ public final class Settings {
          * @hide
          */
         public static final String FORCE_MOUSE_AS_TOUCH = "force_mouse_as_touch";
+
+        /**
+         * @hide
+         */
+        public static final String ENABLE_TASKBAR = "enable_taskbar";
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
@@ -6282,6 +6283,35 @@ public final class Settings {
          */
         public static final String STATUSBAR_BATTERY_BAR_ENABLE_CHARGING_COLOR =
                 "statusbar_battery_bar_enable_charging_color";
+
+        /**
+         * @hide
+         */
+        public static final String USE_OLD_MOBILETYPE = "use_old_mobiletype";
+
+        /**
+         * Whether to display 4G icon instead LTE
+         * @hide
+         */
+        public static final String SHOW_FOURG_ICON = "show_fourg_icon";
+
+        /**
+         * Whether to display cross sign for a data disabled connection
+         * @hide
+         */
+        public static final String DATA_DISABLED_ICON = "data_disabled_icon";
+
+        /**
+         * Show the pending notification counts as overlays on the status bar
+         * @hide
+         */
+        public static final String STATUSBAR_NOTIF_COUNT = "statusbar_notif_count";
+
+        /**
+         * Whether StatusBar icons should use app icon
+         * @hide
+         */
+        public static final String STATUSBAR_COLORED_ICONS = "statusbar_colored_icons";
 
         /**
          * @hide
@@ -6401,7 +6431,6 @@ public final class Settings {
             PRIVATE_SETTINGS.add(POINTER_SPEED);
             PRIVATE_SETTINGS.add(LOCK_TO_APP_ENABLED);
             PRIVATE_SETTINGS.add(EGG_MODE);
-            PRIVATE_SETTINGS.add(SHOW_BATTERY_PERCENT);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE_VENDOR_HINT);
             PRIVATE_SETTINGS.add(DESKTOP_MODE);
@@ -12094,6 +12123,18 @@ public final class Settings {
         public static final String SCREEN_OFF_UDFPS_ENABLED = "screen_off_udfps_enabled";
 
         /**
+         * Face Unlock Method
+         * @hide
+         */
+        public static final String FACE_UNLOCK_METHOD = "face_unlock_method";
+
+        /**
+         * Brightness slider styles
+         * @hide
+         */
+        public static final String BRIGHTNESS_SLIDER_STYLE = "brightness_slider_style";
+
+        /**
          * These entries are considered common between the personal and the managed profile,
          * since the managed profile doesn't get to change them.
          */
@@ -12187,12 +12228,6 @@ public final class Settings {
          * @hide
          */
         public static final String NAVIGATION_BAR_HINT = "navigation_bar_hint";
-
-        /**
-         * boolean value. toggles navigation bar under screen keyboard
-         * @hide
-         */
-        public static final String KEYBOARD_NO_NAVIGATION_BAR = "keyboard_no_navigation_bar";
 
         /** Whether to allow one finger quick settings expansion on the right side of the statusbar.
          *
@@ -19422,6 +19457,18 @@ public final class Settings {
         @SdkConstant(SdkConstant.SdkConstantType.ACTIVITY_INTENT_ACTION)
         public static final String ACTION_VOLUME =
                 "android.settings.panel.action.VOLUME";
+
+        /**
+         * Activity Action: Show a settings dialog containing controls for Mobile Data.
+         * <p>
+         * Input: Nothing.
+         * <p>
+         * Output: Nothing.
+         * @hide
+         */
+        @SdkConstant(SdkConstant.SdkConstantType.ACTIVITY_INTENT_ACTION)
+        public static final String ACTION_MOBILE_DATA =
+                "android.settings.panel.action.MOBILE_DATA";
     }
 
     /**
