@@ -6355,6 +6355,11 @@ public final class Settings {
         public static final String NETWORK_TRAFFIC_HIDEARROW = "network_traffic_hidearrow";
 
         /**
+         * @hide
+         */
+        public static final String ALERT_WINDOW_BYPASS_LOW_RAM = "alert_window_bypass_low_ram";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
