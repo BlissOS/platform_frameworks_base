@@ -1742,13 +1742,31 @@ public class Camera {
                     } catch (RemoteException e) {
                         Log.e(TAG, "Audio service is unavailable for queries");
                     }
-                    _enableShutterSound(false);
+                    try {
+                        _enableShutterSound(false);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Couldn't disable shutter sound");
+                    }
                 } else {
                     enableShutterSound(mShutterSoundEnabledFromApp);
                 }
             }
         }
     }
+
+    /**
+     * Send a vendor-specific camera command
+     *
+     * @hide
+     */
+    public final void sendVendorCommand(int cmd, int arg1, int arg2) {
+        if (cmd < 1000) {
+            throw new IllegalArgumentException("Command numbers must be at least 1000");
+        }
+        _sendVendorCommand(cmd, arg1, arg2);
+    }
+
+    private native final void _sendVendorCommand(int cmd, int arg1, int arg2);
 
     /**
      * Callback interface for zoom changes during a smooth zoom operation.

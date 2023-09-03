@@ -60,7 +60,8 @@ public class PixelPropsUtils {
             "com.android.chrome",
             "com.android.vending",
             "com.breel.wallpapers20",
-            "com.nothing.smartcenter"
+            "com.nothing.smartcenter",
+            "com.netflix.mediaclient"
     };
 
     private static final String[] packagesToKeep = {
@@ -112,14 +113,14 @@ public class PixelPropsUtils {
         propsToChangePixel7Pro.put("DEVICE", "cheetah");
         propsToChangePixel7Pro.put("PRODUCT", "cheetah");
         propsToChangePixel7Pro.put("MODEL", "Pixel 7 Pro");
-        propsToChangePixel7Pro.put("FINGERPRINT", "google/cheetah/cheetah:13/TQ3A.230705.001.A1/10217028:user/release-keys");
+        propsToChangePixel7Pro.put("FINGERPRINT", "google/cheetah/cheetah:13/TQ3A.230805.001/10316531:user/release-keys");
         propsToChangePixel5 = new HashMap<>();
         propsToChangePixel5.put("BRAND", "google");
         propsToChangePixel5.put("MANUFACTURER", "Google");
         propsToChangePixel5.put("DEVICE", "redfin");
         propsToChangePixel5.put("PRODUCT", "redfin");
         propsToChangePixel5.put("MODEL", "Pixel 5");
-        propsToChangePixel5.put("FINGERPRINT", "google/redfin/redfin:13/TQ3A.230705.001/10216780:user/release-keys");
+        propsToChangePixel5.put("FINGERPRINT", "google/redfin/redfin:13/TQ3A.230805.001/10316531:user/release-keys");
         propsToChangePixelXL = new HashMap<>();
         propsToChangePixelXL.put("BRAND", "google");
         propsToChangePixelXL.put("MANUFACTURER", "Google");
@@ -144,6 +145,10 @@ public class PixelPropsUtils {
 
             if (packageName.equals("com.google.android.apps.photos")) {
                 propsToChange.putAll(propsToChangePixelXL);
+            } else if (packageName.equals("com.netflix.mediaclient") &&
+                        !SystemProperties.getBoolean("persist.sys.pixelprops.netflix", false)) {
+                    if (DEBUG) Log.d(TAG, "Netflix spoofing disabled by system prop");
+                    return;
             } else if (packageName.equals("com.android.vending")) {
                 sIsFinsky = true;
                 return;
@@ -185,7 +190,7 @@ public class PixelPropsUtils {
         }
     }
 
-    private static void setPropValue(String key, Object value) {
+    static void setPropValue(String key, Object value) {
         try {
             if (DEBUG) Log.d(TAG, "Defining prop " + key + " to " + value.toString());
             Field field = Build.class.getDeclaredField(key);
@@ -249,5 +254,9 @@ public class PixelPropsUtils {
             Log.i(TAG, "Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
             throw new UnsupportedOperationException();
         }
+    }
+    
+     static void dlog(String msg) {
+      if (DEBUG) Log.d(TAG, msg);
     }
 }

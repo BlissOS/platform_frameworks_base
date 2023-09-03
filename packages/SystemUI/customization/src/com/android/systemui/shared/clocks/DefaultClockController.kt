@@ -17,7 +17,9 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.icu.text.NumberFormat
+import android.os.UserHandle
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +37,8 @@ import java.io.PrintWriter
 import java.util.Locale
 import java.util.TimeZone
 
+import android.provider.Settings.Secure
+
 private val TAG = DefaultClockController::class.simpleName
 
 /**
@@ -44,7 +48,7 @@ private val TAG = DefaultClockController::class.simpleName
  * existing lockscreen clock.
  */
 class DefaultClockController(
-    ctx: Context,
+    val ctx: Context,
     private val layoutInflater: LayoutInflater,
     private val resources: Resources,
     private val settings: ClockSettings?,
@@ -103,6 +107,8 @@ class DefaultClockController(
         private var currentColor = Color.MAGENTA
         private var isRegionDark = false
         protected var targetRegion: Rect? = null
+        val Int.dp: Int get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+   	val Int.px: Int get() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
         override var logBuffer: LogBuffer?
             get() = view.logBuffer
@@ -132,21 +138,40 @@ class DefaultClockController(
                 }
 
                 override fun onFontSettingChanged(fontSizePx: Float) {
-                    view.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSizePx)
+            	    val smallClockTextSize = Secure.getIntForUser(ctx.getContentResolver(),
+                 		Secure.KG_SMALL_CLOCK_TEXT_SIZE, 86, UserHandle.USER_CURRENT)
+            	    val largeClockTextSize = Secure.getIntForUser(ctx.getContentResolver(),
+                 		Secure.KG_LARGE_CLOCK_TEXT_SIZE, 180, UserHandle.USER_CURRENT)
+           		    val finalSmallTextSize = smallClockTextSize.dp
+           		    val finalLargeClockTextSize = largeClockTextSize.dp
+            	    val fontFamily = Secure.getStringForUser(ctx.getContentResolver(),
+             		    Secure.KG_FONT_TYPE, UserHandle.USER_CURRENT)
+                    val typeface = Typeface.create(fontFamily?.takeIf { it.isNotBlank() } ?: "google-sans-clock", Typeface.NORMAL)
+                    view?.typeface = typeface
+            	    setClockFontSize(smallClock.view, finalSmallTextSize.px.toFloat() *  2.5f)
+            	    setClockFontSize(largeClock.view, finalLargeClockTextSize.px.toFloat() * 2.5f)
                     recomputePadding(targetRegion)
+                }
+
+                fun setClockFontSize(v: AnimatableClockView, fontSizePx: Float) {
+            	    v.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSizePx)
                 }
             }
 
         open fun recomputePadding(targetRegion: Rect?) {}
 
         fun updateColor() {
+            val customClockColorEnabled = Secure.getIntForUser(ctx.getContentResolver(),
+                    Secure.KG_CUSTOM_CLOCK_COLOR_ENABLED, 0, UserHandle.USER_CURRENT) != 0
+            val customClockColor = Secure.getIntForUser(ctx.getContentResolver(),
+                    Secure.KG_CUSTOM_CLOCK_COLOR, 0xFFFFFFFF.toInt(), UserHandle.USER_CURRENT)
             val color =
                 if (seedColor != null) {
                     seedColor!!
                 } else if (isRegionDark) {
-                    resources.getColor(android.R.color.system_accent1_100)
+                    if (customClockColorEnabled) customClockColor.toInt() else resources.getColor(android.R.color.system_accent1_100)
                 } else {
-                    resources.getColor(android.R.color.system_accent2_600)
+		            if (customClockColorEnabled) customClockColor.toInt() else resources.getColor(android.R.color.system_accent2_600)
                 }
 
             if (currentColor == color) {
@@ -169,12 +194,10 @@ class DefaultClockController(
             // We center the view within the targetRegion instead of within the parent
             // view by computing the difference and adding that to the padding.
             val parent = view.parent
-            val yDiff =
-                if (targetRegion != null && parent is View && parent.isLaidOut())
-                    targetRegion.centerY() - parent.height / 2f
-                else 0f
             val lp = view.getLayoutParams() as FrameLayout.LayoutParams
-            lp.topMargin = (-0.5f * view.bottom + yDiff).toInt()
+            val customTopMargin = Secure.getIntForUser(ctx.getContentResolver(),
+                Secure.KG_CUSTOM_CLOCK_TOP_MARGIN, 280, UserHandle.USER_CURRENT)
+            lp.topMargin = (-1f * customTopMargin).toInt()
             view.setLayoutParams(lp)
         }
 

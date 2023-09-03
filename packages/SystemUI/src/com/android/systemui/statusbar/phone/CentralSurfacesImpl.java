@@ -92,6 +92,7 @@ import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.DisplayMetrics;
+import android.util.DisplayUtils;
 import android.util.EventLog;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
@@ -248,6 +249,7 @@ import com.android.systemui.statusbar.policy.UserSwitcherController;
 import com.android.systemui.statusbar.window.StatusBarWindowController;
 import com.android.systemui.statusbar.window.StatusBarWindowStateController;
 import com.android.systemui.surfaceeffects.ripple.RippleShader.RippleShape;
+import com.android.systemui.tuner.TunerService;
 import com.android.systemui.util.DumpUtilsKt;
 import com.android.systemui.util.WallpaperController;
 import com.android.systemui.util.concurrency.DelayableExecutor;
@@ -284,7 +286,14 @@ import dagger.Lazy;
  * </b>
  */
 @SysUISingleton
-public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
+public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, TunerService.Tunable {
+
+    private static final String QS_TRANSPARENCY =
+            "system:" + Settings.System.QS_TRANSPARENCY;
+    private static final String LESS_BORING_HEADS_UP =
+            "system:" + Settings.System.LESS_BORING_HEADS_UP;
+    private static final String RETICKER_STATUS =
+            "system:" + Settings.System.RETICKER_STATUS;
 
     private static final String BANNER_ACTION_CANCEL =
             "com.android.systemui.statusbar.banner_action_cancel";
@@ -507,6 +516,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final StatusBarSignalPolicy mStatusBarSignalPolicy;
     private final StatusBarHideIconsForBouncerManager mStatusBarHideIconsForBouncerManager;
     private final Lazy<LightRevealScrimViewModel> mLightRevealScrimViewModelLazy;
+    private final TunerService mTunerService;
 
     protected GameSpaceManager mGameSpaceManager;
     
@@ -792,6 +802,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             Lazy<LightRevealScrimViewModel> lightRevealScrimViewModelLazy,
             AlternateBouncerInteractor alternateBouncerInteractor,
             UserTracker userTracker,
+            TunerService tunerService,
             Provider<FingerprintManager> fingerprintManager,
             BurnInProtectionController burnInProtectionController) {
         mContext = context;
@@ -881,6 +892,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mLockscreenShadeTransitionController = lockscreenShadeTransitionController;
         mStartingSurfaceOptional = startingSurfaceOptional;
         mDreamManager = dreamManager;
+        mTunerService = tunerService;
         lockscreenShadeTransitionController.setCentralSurfaces(this);
         statusBarWindowStateController.addListener(this::onStatusBarWindowStateChanged);
 
@@ -941,6 +953,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mKeyguardIndicationController.init();
 
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
+
+        mTunerService.addTunable(this, QS_TRANSPARENCY);
+        mTunerService.addTunable(this, LESS_BORING_HEADS_UP);
+        mTunerService.addTunable(this, RETICKER_STATUS);
 
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 
@@ -1194,6 +1210,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     }
 
     private void onFoldedStateChangedInternal(boolean isFolded, boolean willGoToSleep) {
+        if (mNotificationPanelViewController == null) {
+            return;
+        }
+
         // Folded state changes are followed by a screen off event.
         // By default turning off the screen also closes the shade.
         // We want to make sure that the shade status is kept after folding/unfolding.
@@ -2753,8 +2773,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             mStatusBarKeyguardViewManager.updateResources();
         }
 
-        mPowerButtonReveal = new PowerButtonReveal(mContext.getResources().getDimensionPixelSize(
-                com.android.systemui.R.dimen.physical_power_button_center_screen_location_y));
+        final float scaleFactor = DisplayUtils.getScaleFactor(mContext);
+        int positionY = (int) (scaleFactor * mContext.getResources().getDimensionPixelSize(
+                R.dimen.physical_power_button_center_screen_location_y));
+
+        mPowerButtonReveal = new PowerButtonReveal(positionY);
     }
 
     protected void handleVisibleToUserChanged(boolean visibleToUser) {
@@ -4228,6 +4251,28 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     @Override
     public boolean isKeyguardSecure() {
         return mStatusBarKeyguardViewManager.isSecure();
+    }
+
+    @Override
+    public void onTuningChanged(String key, String newValue) {
+        switch (key) {
+            case QS_TRANSPARENCY:
+                mScrimController.setCustomScrimAlpha(
+                        TunerService.parseInteger(newValue, 100));
+                break;
+            case LESS_BORING_HEADS_UP:
+                boolean lessBoringHeadsUp =
+                        TunerService.parseIntegerSwitch(newValue, false);
+                mNotificationInterruptStateProvider.setUseLessBoringHeadsUp(lessBoringHeadsUp);
+                break;
+            case RETICKER_STATUS:
+                boolean reTicker =
+                        TunerService.parseIntegerSwitch(newValue, false);
+                mNotificationInterruptStateProvider.setUseReticker(reTicker);
+                break;
+            default:
+                break;
+         }
     }
 
     // End Extra BaseStatusBarMethods.

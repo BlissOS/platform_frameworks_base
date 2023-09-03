@@ -5532,16 +5532,7 @@ public final class Settings {
          * @hide
          */
         @Readable
-        public static final String SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
-
-        /**
-         * Setting to determine whether or not to show the battery percentage in the status bar when charging
-         *    0 - Don't show percentage
-         *    1 - Show percentage
-         * @hide
-         */
-        @Readable
-        public static final String SHOW_BATTERY_PERCENT_CHARGING = "status_bar_show_battery_percent_charging";
+        public static final String SHOW_BATTERY_PERCENT = "dummy_show_battery_percent";
 
         /**
          * Whether or not to enable multiple audio focus.
@@ -5736,6 +5727,11 @@ public final class Settings {
          */
         public static final String NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES =
                 "notification_light_pulse_custom_values";
+
+	/**
+         * @hide
+         */
+        public static final String VOLUME_MEDIA_OUTPUT_TOGGLE = "volume_media_output_toggle";
 
         /**
          * Whether we automatically generate notification LED colors or just
@@ -5939,14 +5935,6 @@ public final class Settings {
         public static final String RETICKER_LANDSCAPE_ONLY = "reticker_landscape_only";
 
         /**
-         * Whether to show battery estimates in QS
-         * @hide
-         */
-        @Readable
-        public static final String QS_SHOW_BATTERY_ESTIMATE = "qs_show_battery_estimate";
-
-
-        /**
          * Whether to show the battery info on the lockscreen while charging
          * @hide
          */
@@ -5985,20 +5973,19 @@ public final class Settings {
         public static final String AICP_LOCKSCREEN_WEATHER_STYLE = "lockscreen_weather_style";
 
         /**
-         * Style of battery to show.
-         * 0 = protrait (default)
-         * 1 = circle
-         * 2 = text
          * @hide
          */
-        @Readable
-        public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
+        public static final String UDFPS_ANIM = "udfps_anim";
 
         /**
-         * Whether to draw battery percent inside the icon
          * @hide
          */
-        public static final String SHOW_BATTERY_PERCENT_INSIDE = "status_bar_show_battery_percent_inside";
+        public static final String UDFPS_ANIM_STYLE = "udfps_anim_style";
+
+        /**
+         * @hide
+         */
+        public static final String UDFPS_ICON = "udfps_icon";
 
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
@@ -6185,6 +6172,45 @@ public final class Settings {
         public static final String TRANSISTENT_TASK_MODE = "transistent_task_mode";
 
         /**
+         * Battery style
+         * @hide
+         */
+        public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
+
+        /**
+          * Statusbar Battery %
+          * 0: Hide the battery percentage
+          * 1: Display the battery percentage inside the icon
+          * 2: Display the battery percentage next to Icon
+          * @hide
+          */
+        public static final String STATUS_BAR_SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
+
+        /**
+         * Show battery percentage when charging
+         * @hide
+         */
+        public static final String STATUS_BAR_BATTERY_TEXT_CHARGING = "status_bar_battery_text_charging";
+
+        /**
+         * Enable statusbar double tap gesture to put device to sleep
+         * @hide
+         */
+        public static final String DOUBLE_TAP_SLEEP_GESTURE = "double_tap_sleep_gesture";
+
+        /**
+         * Double tap on lockscreen to sleep
+         * @hide
+         */
+        public static final String DOUBLE_TAP_SLEEP_LOCKSCREEN = "double_tap_sleep_lockscreen";
+
+	/**
+         * Use doubletap as doze pulse triggers
+         * @hide
+         */
+        public static final String DOZE_TRIGGER_DOUBLETAP = "doze_trigger_doubletap";
+
+        /**
          * @hide
          */
         public static final String PREVENT_POINTER_ACCELERATION = "prevent_pointer_acceleration";
@@ -6198,6 +6224,11 @@ public final class Settings {
          * @hide
          */
         public static final String ALERT_WINDOW_BYPASS_LOW_RAM = "alert_window_bypass_low_ram";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TRANSPARENCY = "qs_transparency";
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
@@ -6295,10 +6326,69 @@ public final class Settings {
         public static final String STATUSBAR_BATTERY_BAR_BLEND_COLOR = "statusbar_battery_bar_blend_color";
 
         /**
+         * Whether to blink flashlight for incoming calls
+         * 0 = Disabled (Default)
+         * 1 = Blink flashlight only in Ringer mode
+         * 2 = Blink flashlight only when ringer is not audible
+         * 3 = Blink flahslight only when entirely silent
+         * 4 = Blink flashlight always regardless of ringer mode
+         * @hide
+         */
+        @Readable
+        public static final String FLASHLIGHT_ON_CALL = "flashlight_on_call";
+
+        /**
+         * @hide
+         * Whether flashlight_on_call ignores DND (Zen Mode)
+         * @hide
+         */
+        @Readable
+        public static final String FLASHLIGHT_ON_CALL_IGNORE_DND = "flashlight_on_call_ignore_dnd";
+
+        /**
+         * Rate in Hz in which to blink flashlight_on_call
+         * @hide
+         */
+        @Readable
+        public static final String FLASHLIGHT_ON_CALL_RATE = "flashlight_on_call_rate";
+
+        /**
+         * @hide
+         */
+        public static final String SMART_CHARGING = "smart_charging";
+
+        /**
+         * @hide
+         */
+        public static final String SMART_CHARGING_LEVEL = "smart_charging_level";
+
+        /**
+         * @hide
+         */
+        public static final String SMART_CHARGING_RESET_STATS = "smart_charging_reset_stats";
+
+        /**
+         * @hide
+         */
+        public static final String SMART_CHARGING_RESUME_LEVEL = "smart_charging_resume_level";
+
+        /**
          * @hide
          */
         public static final String STATUSBAR_BATTERY_BAR_BLEND_COLOR_REVERSE =
                 "statusbar_battery_bar_blend_color_reverse";
+
+        /**
+         * Lockscreen clock format
+         * @hide
+         */
+        public static final String CLOCK_USE_CUSTOM_FORMAT = "clock_use_custom_format";
+
+        /**
+         * Show app volume rows in volume panel
+         * @hide
+         */
+        public static final String SHOW_APP_VOLUME = "show_app_volume";
 
         /**
          * Whether to enable smart 5G mode
@@ -6311,6 +6401,49 @@ public final class Settings {
          * @hide
          */
         public static final String THREE_FINGER_GESTURE = "three_finger_gesture";
+
+        /**
+         * QS Header
+         * @hide
+         */
+        public static final String QS_HEADER_IMAGE = "qs_header_image";
+
+        /**
+         * Whether to show power menu on LockScreen
+         * @hide
+         */
+        public static final String LOCKSCREEN_ENABLE_POWER_MENU = "lockscreen_enable_power_menu";
+
+        /**
+         * @hide
+         */
+        public static final String QS_PANEL_STYLE = "qs_panel_style";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_LABEL_HIDE = "qs_tile_label_hide";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_VERTICAL_LAYOUT = "qs_tile_vertical_layout";
+
+        /**
+         * @hide
+         */
+        public static final String QS_LAYOUT = "qs_layout";
+
+        /**
+         * @hide
+         */
+        public static final String QQS_LAYOUT = "qqs_layout";
+
+        /**
+         * Whether to show heads up only for dialer and sms apps
+         * @hide
+         */
+        public static final String LESS_BORING_HEADS_UP = "less_boring_heads_up";
 
         /**
          * These are all public system settings
@@ -6419,7 +6552,6 @@ public final class Settings {
             PRIVATE_SETTINGS.add(POINTER_SPEED);
             PRIVATE_SETTINGS.add(LOCK_TO_APP_ENABLED);
             PRIVATE_SETTINGS.add(EGG_MODE);
-            PRIVATE_SETTINGS.add(SHOW_BATTERY_PERCENT);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE_VENDOR_HINT);
             PRIVATE_SETTINGS.add(DESKTOP_MODE);
@@ -6436,6 +6568,9 @@ public final class Settings {
             PRIVATE_SETTINGS.add(TRANSISTENT_TASK_MODE);
             PRIVATE_SETTINGS.add(PREVENT_POINTER_ACCELERATION);
             PRIVATE_SETTINGS.add(FORCE_MOUSE_AS_TOUCH);
+            PRIVATE_SETTINGS.add(FLASHLIGHT_ON_CALL);
+            PRIVATE_SETTINGS.add(FLASHLIGHT_ON_CALL_IGNORE_DND);
+            PRIVATE_SETTINGS.add(FLASHLIGHT_ON_CALL_RATE);
         }
 
         /**
@@ -11921,6 +12056,36 @@ public final class Settings {
         public static final String PULSE_VERTICAL_MIRROR = "pulse_vertical_mirror";
 
         /**
+         * @hide
+         */
+        public static final String KG_CUSTOM_CLOCK_COLOR = "kg_custom_clock_color";
+
+        /**
+         * @hide
+         */
+        public static final String KG_CUSTOM_CLOCK_COLOR_ENABLED = "kg_custom_clock_color_enabled";
+
+        /**
+         * @hide
+         */
+        public static final String KG_LARGE_CLOCK_TEXT_SIZE = "kg_large_clock_text_size";
+
+        /**
+         * @hide
+         */
+        public static final String KG_SMALL_CLOCK_TEXT_SIZE = "kg_small_clock_text_size";
+
+        /**
+         * @hide
+         */
+        public static final String KG_FONT_TYPE = "kg_font_type";
+
+        /**
+         * @hide
+         */
+        public static final String KG_CUSTOM_CLOCK_TOP_MARGIN = "kg_custom_clock_top_margin";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -12192,6 +12357,19 @@ public final class Settings {
          * @hide
          */
         public static final String FACE_UNLOCK_METHOD = "face_unlock_method";
+
+        /**
+         * Whether to enable DOZE only when charging
+         * @hide
+         */
+        public static final String DOZE_ON_CHARGE = "doze_on_charge";
+
+        /**
+         * Whether to spoof device as a high-end model to unlock higher FPS in certain games.
+         * @hide
+         */
+        @Readable
+        public static final String GAMES_DEVICE_SPOOF = "games_device_spoof";
 
         /**
          * These entries are considered common between the personal and the managed profile,
@@ -19523,6 +19701,12 @@ public final class Settings {
         @SdkConstant(SdkConstant.SdkConstantType.ACTIVITY_INTENT_ACTION)
         public static final String ACTION_MOBILE_DATA =
                 "android.settings.panel.action.MOBILE_DATA";
+
+        /**
+         * @hide
+         */
+        public static final String ACTION_APP_VOLUME =
+                "android.settings.panel.action.APP_VOLUME";
     }
 
     /**

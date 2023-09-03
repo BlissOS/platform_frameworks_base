@@ -20,10 +20,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/footer_actions_height"
-    android:elevation="@dimen/qs_panel_elevation"
     android:paddingTop="@dimen/qs_footer_actions_top_padding"
     android:paddingBottom="@dimen/qs_footer_actions_bottom_padding"
-    android:background="@drawable/qs_footer_actions_background"
+    android:background="@android:color/transparent"
     android:gravity="center_vertical|end"
     android:layout_gravity="bottom"
 />

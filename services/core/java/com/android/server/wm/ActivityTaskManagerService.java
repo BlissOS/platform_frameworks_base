@@ -380,7 +380,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
      * @see WindowManagerThreadPriorityBooster
      */
     final Object mGlobalLockWithoutBoost = mGlobalLock;
-    ActivityTaskSupervisor mTaskSupervisor;
+    public ActivityTaskSupervisor mTaskSupervisor;
     ActivityClientController mActivityClientController;
     RootWindowContainer mRootWindowContainer;
     WindowManagerService mWindowManager;
@@ -3789,6 +3789,19 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 return getCurrentUserId();
             }
             return mLastResumedActivity.mUserId;
+        }
+    }
+
+    /** Return the uid of the last resumed activity. */
+    @Override
+    public int getLastResumedActivityUid() {
+        mAmInternal.enforceCallingPermission(
+                Manifest.permission.INTERACT_ACROSS_USERS_FULL, "getLastResumedActivityUserId()");
+        synchronized (mGlobalLock) {
+            if (mLastResumedActivity == null) {
+                return 0;
+            }
+            return mLastResumedActivity.getUid();
         }
     }
 
