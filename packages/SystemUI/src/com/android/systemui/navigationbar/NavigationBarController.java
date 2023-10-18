@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.Trace;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
@@ -328,10 +329,16 @@ public class NavigationBarController implements
      */
     @VisibleForTesting
     void createNavigationBar(Display display, Bundle savedState, RegisterStatusBarResult result) {
+        // Check if the property persist.bliss.disable_navigation_bar is true
+        boolean disableNavigationBar = SystemProperties.getBoolean("persist.bliss.disable_navigation_bar", false);
+        if (disableNavigationBar) {
+            return;
+        }
+        
         if (display == null) {
             return;
         }
-
+    
         final int displayId = display.getDisplayId();
         final boolean isOnDefaultDisplay = displayId == mDisplayTracker.getDefaultDisplayId();
 
@@ -370,7 +377,7 @@ public class NavigationBarController implements
                             result.mShowImeSwitcher);
                 }
             }
-
+    
             @Override
             public void onViewDetachedFromWindow(View v) {
                 v.removeOnAttachStateChangeListener(this);
