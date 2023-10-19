@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.os.SystemProperties;
 
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
@@ -57,6 +58,11 @@ public class NavigationHandle extends View implements ButtonInterface {
                 setVisibility(View.VISIBLE);
                 if (mRequiresInvalidate) invalidate();
             }
+            // Check if the property persist.bliss.disable_navigation_handle is true
+            boolean disableNavigationHandle = SystemProperties.getBoolean("persist.bliss.disable_navigation_handle", false);
+            if (disableNavigationHandle) {
+                setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -67,6 +73,11 @@ public class NavigationHandle extends View implements ButtonInterface {
             } else if (!mIsDreaming) {
                 setVisibility(View.VISIBLE);
                 if (mRequiresInvalidate) invalidate();
+            }
+            // Check if the property persist.bliss.disable_navigation_handle is true
+            boolean disableNavigationHandle = SystemProperties.getBoolean("persist.bliss.disable_navigation_handle", false);
+            if (disableNavigationHandle) {
+                setVisibility(View.GONE);
             }
         }
     };
