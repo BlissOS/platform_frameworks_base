@@ -4840,7 +4840,6 @@ public class AccountManagerService
             if (accountType == null) throw new IllegalArgumentException("accountType is null");
             mAccounts = accounts;
             mStripAuthTokenFromResult = stripAuthTokenFromResult;
-            mResponse = response;
             mAccountType = accountType;
             mExpectActivityLaunch = expectActivityLaunch;
             mCreationTime = SystemClock.elapsedRealtime();
@@ -4854,8 +4853,8 @@ public class AccountManagerService
             if (response != null) {
                 try {
                     response.asBinder().linkToDeath(this, 0 /* flags */);
+                    mResponse = response;
                 } catch (RemoteException e) {
-                    mResponse = null;
                     binderDied();
                 }
             }
@@ -4933,6 +4932,9 @@ public class AccountManagerService
             Bundle simulateBundle = p.readBundle();
             p.recycle();
             Intent intent = bundle.getParcelable(AccountManager.KEY_INTENT, Intent.class);
+            if (intent != null && intent.getClass() != Intent.class) {
+                return false;
+            }
             Intent simulateIntent = simulateBundle.getParcelable(AccountManager.KEY_INTENT,
                     Intent.class);
             if (intent == null) {
