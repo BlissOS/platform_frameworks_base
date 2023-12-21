@@ -24,12 +24,7 @@ import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.res.Configuration;
 import android.content.res.Configuration.Orientation;
-import android.database.ContentObserver;
 import android.metrics.LogMaker;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.UserHandle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -37,7 +32,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEventLogger;
 import com.android.systemui.Dumpable;
-import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dump.DumpManager;
 import com.android.systemui.media.controls.ui.MediaHost;
 import com.android.systemui.plugins.qs.QSTile;
@@ -49,7 +43,6 @@ import com.android.systemui.qs.tileimpl.QSTileViewImpl;
 import com.android.systemui.util.LargeScreenUtils;
 import com.android.systemui.util.ViewController;
 import com.android.systemui.util.animation.DisappearParameters;
-import com.android.systemui.util.settings.SystemSettings;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -116,10 +109,6 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
                     if (previousSplitShadeState != mShouldUseSplitNotificationShade) {
                         onSplitShadeChanged(mShouldUseSplitNotificationShade);
                     }
-                    if (mView.getTileLayout() != null) {
-                        mView.getTileLayout().updateSettings();
-                        setTiles();
-                    }
                 }
             };
 
@@ -140,9 +129,6 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
     @Nullable
     private Runnable mUsingHorizontalLayoutChangedListener;
 
-    protected final SystemSettings mSystemSettings;
-    private final ContentObserver mSettingsObserver;
-
     protected QSPanelControllerBase(
             T view,
             QSHost host,
@@ -152,9 +138,7 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
             MetricsLogger metricsLogger,
             UiEventLogger uiEventLogger,
             QSLogger qsLogger,
-            DumpManager dumpManager,
-	    @Main Handler mainHandler,
-	    SystemSettings systemSettings
+            DumpManager dumpManager
     ) {
         super(view);
         mHost = host;
@@ -167,21 +151,6 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
         mDumpManager = dumpManager;
         mShouldUseSplitNotificationShade =
                 LargeScreenUtils.shouldUseSplitNotificationShade(getResources());
-        mSystemSettings = systemSettings;
-	mSettingsObserver = new ContentObserver(mainHandler) {
-            @Override
-            public void onChange(boolean selfChange, @Nullable Uri uri) {
-                     if (uri == null) return;
-		     final String key = uri.getLastPathSegment();
-		     if (key == null) return;
-		     handleSettingsChange(key);
-	    }
-	};
-    }
-
-    protected boolean handleSettingsChange(@NonNull String key) {
-    	//to-do add required functionalities in future here
-        return false;
     }
 
     @Override
@@ -203,8 +172,6 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
 
     @Override
     protected void onViewAttached() {
-        registerObserver(Settings.System.QS_TILE_LABEL_HIDE);
-        registerObserver(Settings.System.QS_TILE_VERTICAL_LAYOUT);
         mQsTileRevealController = createTileRevealController();
         if (mQsTileRevealController != null) {
             mQsTileRevealController.setExpansion(mRevealExpansion);
@@ -221,11 +188,6 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
         switchTileLayout(true);
 
         mDumpManager.registerDumpable(mView.getDumpableTag(), this);
-    }
-
-    protected void registerObserver(String key) {
-        mSystemSettings.registerContentObserverForUser(
-            key, mSettingsObserver, UserHandle.USER_ALL);
     }
 
     @Override

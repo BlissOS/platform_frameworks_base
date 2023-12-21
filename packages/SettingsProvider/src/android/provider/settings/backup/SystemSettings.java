@@ -101,10 +101,5 @@ public class SystemSettings {
         Settings.System.FLASHLIGHT_ON_CALL_IGNORE_DND,
         Settings.System.FLASHLIGHT_ON_CALL_RATE,
         Settings.System.QS_PANEL_STYLE,
-        Settings.System.QS_PANEL_STYLE,
-        Settings.System.QS_TILE_LABEL_HIDE,
-        Settings.System.QS_TILE_VERTICAL_LAYOUT,
-        Settings.System.QS_LAYOUT,
-        Settings.System.QQS_LAYOUT,
     };
 }
