@@ -6421,11 +6421,6 @@ public final class Settings {
         public static final String LOCKSCREEN_ENABLE_POWER_MENU = "lockscreen_enable_power_menu";
 
         /**
-         * @hide
-         */
-        public static final String QS_PANEL_STYLE = "qs_panel_style";
-
-        /**
          * Whether to show heads up only for dialer and sms apps
          * @hide
          */
