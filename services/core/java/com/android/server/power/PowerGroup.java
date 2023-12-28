@@ -33,15 +33,12 @@ import static com.android.server.power.PowerManagerService.WAKE_LOCK_STAY_AWAKE;
 
 import android.hardware.display.DisplayManagerInternal;
 import android.hardware.display.DisplayManagerInternal.DisplayPowerRequest;
-import android.os.FileUtils;
 import android.os.PowerManager;
 import android.os.PowerManagerInternal;
 import android.os.PowerSaveState;
 import android.os.Trace;
 import android.util.Slog;
 import android.view.Display;
-
-import java.io.IOException;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.LatencyTracker;
@@ -268,13 +265,7 @@ public class PowerGroup {
                     + ", millisSinceLastUserActivity=" + millisSinceLastUserActivity
                     + ", lastUserActivityEvent=" + PowerManager.userActivityEventToString(
                     mLastUserActivityEvent) + ")...");
-            // Adding force suspend code to enter S3 after pressing sleep button
-			try {
-				FileUtils.stringToFile("/sys/power/state", "mem");
-			} catch (IOException e) {
-				Slog.v(TAG, "IOException: " + e);
-			}
-            
+
             setSandmanSummonedLocked(/* isSandmanSummoned= */ true);
             setWakefulnessLocked(WAKEFULNESS_DOZING, eventTime, uid, reason, /* opUid= */ 0,
                     /* opPackageName= */ null, /* details= */ null);
