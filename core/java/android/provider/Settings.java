@@ -6098,6 +6098,13 @@ public final class Settings {
         public static final String POWERMENU_TORCH = "powermenu_torch";
 
         /**
+         * Whether to display the sleep option in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_SLEEP = "powermenu_sleep";
+
+        /**
          * If On-The-Go should be displayed at the power menu.
          *
          * @hide
