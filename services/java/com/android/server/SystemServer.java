@@ -139,7 +139,6 @@ import com.android.server.input.InputManagerService;
 import com.android.server.inputmethod.InputMethodManagerService;
 import com.android.server.integrity.AppIntegrityManagerService;
 import com.android.server.lights.LightsService;
-import com.android.server.lineage.LineageHardwareService;
 import com.android.server.locales.LocaleManagerService;
 import com.android.server.location.LocationManagerService;
 import com.android.server.logcat.LogcatManagerService;
@@ -2564,13 +2563,6 @@ public final class SystemServer implements Dumpable {
                     com.android.internal.R.bool.config_mockOplusLinearmotorVibratorService)) {
                 t.traceBegin("StartLinearmotorVibratorService");
                 mSystemServiceManager.startService(LinearmotorVibratorService.class);
-                t.traceEnd();
-            }
-
-            // LineageHardware
-            if (!mOnlyCore){
-                t.traceBegin("StartLineageHardwareService");
-                mSystemServiceManager.startService(LineageHardwareService.class);
                 t.traceEnd();
             }
 
