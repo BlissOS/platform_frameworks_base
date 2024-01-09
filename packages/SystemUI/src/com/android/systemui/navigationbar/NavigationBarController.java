@@ -30,11 +30,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.Trace;
-import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.IWindowManager;
 import android.view.View;
@@ -46,6 +46,7 @@ import androidx.annotation.Nullable;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.statusbar.RegisterStatusBarResult;
 import com.android.settingslib.applications.InterestingConfigChanges;
+import com.android.systemui.R;
 import com.android.systemui.Dumpable;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.dagger.qualifiers.Main;
@@ -57,7 +58,6 @@ import com.android.systemui.recents.OverviewProxyService;
 import com.android.systemui.settings.DisplayTracker;
 import com.android.systemui.shared.system.QuickStepContract;
 import com.android.systemui.shared.system.TaskStackChangeListeners;
-import com.android.systemui.shared.system.WindowManagerWrapper;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.CommandQueue.Callbacks;
 import com.android.systemui.statusbar.phone.AutoHideController;
@@ -339,23 +339,20 @@ public class NavigationBarController implements
         if (display == null) {
             return;
         }
-    
         final int displayId = display.getDisplayId();
         final boolean isOnDefaultDisplay = displayId == mDisplayTracker.getDefaultDisplayId();
 
         // We may show TaskBar on the default display for large screen device. Don't need to create
         // navigation bar for this case.
-        if (shouldShowTaskbar() && isOnDefaultDisplay) {
+        if (isOnDefaultDisplay && initializeTaskbarIfNecessary()) {
             return;
         }
 
-        final WindowManagerWrapper wm = WindowManagerWrapper.getInstance();
         final IWindowManager wms = WindowManagerGlobal.getWindowManagerService();
 
-        final Context context = isOnDefaultDisplay
-                ? mContext
-                : mContext.createDisplayContext(display);
-        if (!wm.hasSoftNavigationBar(context, displayId)) {
+        final Context rawContext = mContext.createDisplayContext(display);
+        final Context context = new ContextThemeWrapper(rawContext, R.style.Theme_SystemUI);
+        if (!hasSoftNavigationBar(context, displayId)) {
             return;
         }
         NavigationBarComponent component = mNavigationBarComponentFactory.create(
@@ -485,6 +482,26 @@ public class NavigationBarController implements
 
     private boolean shouldShowTaskbar() {
         return mTaskbarShowing;
+    }
+
+    /**
+     * @param displayId the id of display to check if there is a software navigation bar.
+     *
+     * @return whether there is a soft nav bar on specific display.
+     */
+    private boolean hasSoftNavigationBar(Context context, int displayId) {
+        if (displayId == mDisplayTracker.getDefaultDisplayId() &&
+                Settings.System.getIntForUser(context.getContentResolver(),
+                        Settings.System.FORCE_SHOW_NAVBAR, 0,
+                        UserHandle.USER_CURRENT) == 1) {
+            return true;
+        }
+        try {
+            return WindowManagerGlobal.getWindowManagerService().hasNavigationBar(displayId);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to check soft navigation bar", e);
+            return false;
+        }
     }
 
     /** @return {@link NavigationBar} on the default display. */

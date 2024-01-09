@@ -46,7 +46,7 @@ public interface NavigationEdgeBackPlugin extends Plugin {
     void setBackCallback(BackCallback callback);
 
     /** Specifies if the long swipe should be enabled or not. */
-    void setLongSwipeEnabled(boolean enabled);
+    default void setLongSwipeEnabled(boolean enabled) {}
 
     /** Sets the base LayoutParams for the UI. */
     void setLayoutParams(WindowManager.LayoutParams layoutParams);

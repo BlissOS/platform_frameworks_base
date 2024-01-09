@@ -250,7 +250,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.android.internal.libremobileos.hardware.LineageHardwareManager;
+import com.android.internal.bliss.hardware.LineageHardwareManager;
 
 /**
  * WindowManagerPolicy implementation for the Android phone UI.  This

@@ -19,7 +19,7 @@ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_EXCLUDE_FROM_
 
 import static com.android.systemui.classifier.Classifier.BACK_GESTURE;
 
-import static com.android.internal.util.libremobileos.DeviceKeysConstants.Action;
+import static com.android.internal.util.bliss.DeviceKeysConstants.Action;
 
 import android.annotation.NonNull;
 import android.app.ActivityManager;
