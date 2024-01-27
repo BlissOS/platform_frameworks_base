@@ -6307,11 +6307,6 @@ public final class Settings {
          */
 
         /**
-         * @hide
-         */
-        public static final String ENABLE_TASKBAR = "enable_taskbar";
-
-        /**
          * Network traffic indicator location
          * 0 = Disabled
          * 1 = Statusbar
