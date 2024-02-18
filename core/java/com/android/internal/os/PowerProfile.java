@@ -25,6 +25,7 @@ import android.compat.annotation.UnsupportedAppUsage;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
+import android.os.SystemProperties;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -907,7 +908,11 @@ public class PowerProfile {
      */
     @UnsupportedAppUsage
     public double getAveragePower(String type) {
-        return getAveragePowerOrDefault(type, 0);
+        if ((type == POWER_BATTERY_CAPACITY) && (getBatteryCapacityProperty() > 0)) {
+            return getBatteryCapacityProperty();
+        } else {
+            return getAveragePowerOrDefault(type, 0);
+        }
     }
 
     /**
@@ -958,19 +963,23 @@ public class PowerProfile {
      */
     @UnsupportedAppUsage
     public double getAveragePower(String type, int level) {
-        if (sPowerItemMap.containsKey(type)) {
-            return sPowerItemMap.get(type);
-        } else if (sPowerArrayMap.containsKey(type)) {
-            final Double[] values = sPowerArrayMap.get(type);
-            if (values.length > level && level >= 0) {
-                return values[level];
-            } else if (level < 0 || values.length == 0) {
-                return 0;
-            } else {
-                return values[values.length - 1];
-            }
+        if ((type == POWER_BATTERY_CAPACITY) && (getBatteryCapacityProperty() > 0)) {
+            return getBatteryCapacityProperty();
         } else {
-            return 0;
+            if (sPowerItemMap.containsKey(type)) {
+                return sPowerItemMap.get(type);
+            } else if (sPowerArrayMap.containsKey(type)) {
+                final Double[] values = sPowerArrayMap.get(type);
+                if (values.length > level && level >= 0) {
+                    return values[level];
+                } else if (level < 0 || values.length == 0) {
+                    return 0;
+                } else {
+                    return values[values.length - 1];
+                }
+            } else {
+                return 0;
+            }
         }
     }
 
@@ -998,6 +1007,13 @@ public class PowerProfile {
      */
     public double getAveragePowerForOrdinal(@PowerGroup String group, int ordinal) {
         return getAveragePowerForOrdinal(group, ordinal, 0);
+    }
+
+    /**
+     * Get the battery capacity defined in a property and return it in double
+     */
+    private double getBatteryCapacityProperty() {
+        return (double) SystemProperties.getInt("ro.bliss.battery_capacity", 0);
     }
 
     /**
@@ -1194,7 +1210,18 @@ public class PowerProfile {
     // Writes items in sPowerItemMap to proto if exists.
     private void writePowerConstantToProto(ProtoOutputStream proto, String key, long fieldId) {
         if (sPowerItemMap.containsKey(key)) {
-            proto.write(fieldId, sPowerItemMap.get(key));
+            switch (key) {
+                case POWER_BATTERY_CAPACITY:
+                    if (getBatteryCapacityProperty() > 0){
+                        proto.write(fieldId, getBatteryCapacityProperty());
+                    } else {
+                        proto.write(fieldId, sPowerItemMap.get(key));
+                    }
+                    break;
+                default:
+                    proto.write(fieldId, sPowerItemMap.get(key));
+                    break;
+            }
         }
     }
 
