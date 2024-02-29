@@ -16,6 +16,9 @@
 
 package com.android.server.input;
 
+import static android.view.PointerIcon.POINTER_ICON_VECTOR_STYLE_FILL_BLACK;
+import static android.view.flags.Flags.enableVectorCursorA11ySettings;
+
 import static com.android.input.flags.Flags.rateLimitUserActivityPokeInDispatcher;
 
 import android.content.BroadcastReceiver;
@@ -97,6 +100,8 @@ class InputSettingsObserver extends ContentObserver {
                         (reason) -> updateAccessibilityStickyKeys()),
                 Map.entry(Settings.Secure.getUriFor(Settings.Secure.STYLUS_POINTER_ICON_ENABLED),
                         (reason) -> updateStylusPointerIconEnabled()),
+                Map.entry(Settings.System.getUriFor(Settings.System.POINTER_FILL_STYLE),
+                        (reason) -> updatePointerFillStyleFromSettings()),
                 Map.entry(Settings.System.getUriFor(
                         Settings.System.SWAP_VOLUME_KEYS_ON_ROTATION),
                         (reason) -> updateVolumeKeysRotation()));
@@ -269,5 +274,16 @@ class InputSettingsObserver extends ContentObserver {
 
     private void updateStylusPointerIconEnabled() {
         mNative.setStylusPointerIconEnabled(InputSettings.isStylusPointerIconEnabled(mContext));
+    }
+
+    private void updatePointerFillStyleFromSettings() {
+        if (!enableVectorCursorA11ySettings()) {
+            return;
+        }
+        final int pointerFillStyle = Settings.System.getIntForUser(
+                mContext.getContentResolver(), Settings.System.POINTER_FILL_STYLE,
+                POINTER_ICON_VECTOR_STYLE_FILL_BLACK,
+                UserHandle.USER_CURRENT);
+        mService.setPointerFillStyle(pointerFillStyle);
     }
 }
