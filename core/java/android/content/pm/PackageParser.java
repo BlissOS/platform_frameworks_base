@@ -1424,9 +1424,11 @@ public class PackageParser {
         final ParseTypeImpl input = ParseTypeImpl.forDefaultParsing();
         final ParseResult<android.content.pm.SigningDetails> result;
         if (skipVerify) {
-            // systemDir APKs are already trusted, save time by not verifying
+            // systemDir APKs are already trusted, save time by not verifying; since the signature
+            // is not verified and some system apps can have their V2+ signatures stripped allow
+            // pulling the certs from the jar signature.
             result = ApkSignatureVerifier.unsafeGetCertsWithoutVerification(
-                    input, apkPath, minSignatureScheme);
+                    input, apkPath, SigningDetails.SignatureSchemeVersion.JAR);
         } else {
             result = ApkSignatureVerifier.verify(input, apkPath, minSignatureScheme);
         }
