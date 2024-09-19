@@ -172,7 +172,7 @@ public class BlissUtils {
                     return true;
                 }
             }
-        } catch (CameraAccessException e) {
+        } catch (CameraAccessException | NullPointerException e) {
             // Ignore
         }
         return false;
