@@ -147,7 +147,7 @@ public class NavigationBarControllerImplTest extends SysuiTestCase {
         assumeFalse(enableTaskbarNavbarUnification() && enableTaskbarOnPhones());
 
         // Large screens may be using taskbar and the logic is different
-        mNavigationBarController.mTaskbarShowing = false;
+        mNavigationBarController.mIsLargeScreen = false;
         mNavigationBarController.mIsPhone = true;
         doNothing().when(mNavigationBarController).createNavigationBar(any(), any(), any());
 
