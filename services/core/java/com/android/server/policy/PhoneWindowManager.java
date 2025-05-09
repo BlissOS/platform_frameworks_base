@@ -666,6 +666,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     private int mForceNavbar = -1;
 
+    // User defined hw key config
+    boolean mSwapCapacitiveKeys = false;
+
     // Tracks user-customisable behavior for certain key events
     private Action mBackLongPressAction;
     private Action mHomeLongPressAction;
@@ -1105,11 +1108,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.VOLUME_WAKE_SCREEN), false, this,
                     UserHandle.USER_ALL);
-            if (mLineageHardware != null && mLineageHardware.isSupported(LineageHardwareManager.FEATURE_KEY_SWAP)) {
-                resolver.registerContentObserver(Settings.Secure.getUriFor(
-                        Settings.Secure.SWAP_CAPACITIVE_KEYS), false, this,
-                        UserHandle.USER_ALL);
-            }
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SWAP_CAPACITIVE_KEYS), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.KEY_EDGE_LONG_SWIPE_ACTION), false, this,
                     UserHandle.USER_ALL);
@@ -3539,16 +3540,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (updateRotation) {
             updateRotation(true);
         }
-        updateKeySwapper();
-    }
-
-    private void updateKeySwapper(){
         if (mLineageHardware != null && mLineageHardware.isSupported(LineageHardwareManager.FEATURE_KEY_SWAP)) {
-            return;
+            mSwapCapacitiveKeys = Settings.System.getIntForUser(resolver,
+                    Settings.System.SWAP_CAPACITIVE_KEYS, 0,
+                    UserHandle.USER_CURRENT) == 1;
+            mLineageHardware.set(LineageHardwareManager.FEATURE_KEY_SWAP, mSwapCapacitiveKeys);
         }
-        final boolean enabled = Settings.Secure.getInt(mContext.getContentResolver(),
-                Settings.Secure.SWAP_CAPACITIVE_KEYS, 0) == 1;
-        mLineageHardware.set(LineageHardwareManager.FEATURE_KEY_SWAP, enabled);
     }
 
     private void updateKidsModeSettings() {

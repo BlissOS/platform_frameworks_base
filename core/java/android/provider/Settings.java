@@ -7457,6 +7457,12 @@ public final class Settings {
         public static final String FP_ERROR_VIBRATE = "fp_error_vibrate";
 
         /**
+         * Whether key swap is enabled on supported hardware
+         * @hide
+         */
+        public static final String SWAP_CAPACITIVE_KEYS = "swap_capacitive_keys";
+
+        /**
          * These are all public system settings
          *
          * @hide
@@ -13940,12 +13946,6 @@ public final class Settings {
          * @hide
          */
         public static final String KEYBOARD_BRIGHTNESS = "keyboard_brightness";
-
-        /**
-         * Whether key swap is enabled on supported hardware
-         * @hide
-         */
-        public static final String SWAP_CAPACITIVE_KEYS = "swap_capacitive_keys";
 
         /**
          * Control whether FLAG_SECURE is ignored for all windows.
