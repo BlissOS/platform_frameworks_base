@@ -7365,11 +7365,6 @@ public final class Settings {
         public static final String ENABLE_TASKBAR = "enable_taskbar";
 
         /**
-         * @hide
-         */
-        public static final String TRANSIENT_TASK_MODE = "transient_task_mode";
-
-        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -7508,7 +7503,6 @@ public final class Settings {
             PRIVATE_SETTINGS.add(MOUSE_REVERSE_VERTICAL_SCROLLING);
             PRIVATE_SETTINGS.add(MOUSE_SWAP_PRIMARY_BUTTON);
             PRIVATE_SETTINGS.add(PREFERRED_REGION);
-            PRIVATE_SETTINGS.add(TRANSIENT_TASK_MODE);
         }
 
         /**
@@ -7523,7 +7517,6 @@ public final class Settings {
             CLONE_TO_MANAGED_PROFILE.add(SOUND_EFFECTS_ENABLED);
             CLONE_TO_MANAGED_PROFILE.add(TEXT_SHOW_PASSWORD);
             CLONE_TO_MANAGED_PROFILE.add(TIME_12_24);
-            CLONE_TO_MANAGED_PROFILE.add(TRANSIENT_TASK_MODE);
         }
 
         /** @hide */

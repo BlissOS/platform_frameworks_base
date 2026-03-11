@@ -318,7 +318,7 @@ class ActivityTransitionState {
         }
     }
 
-    public boolean startExitBackTransition(final Activity activity, boolean removeTask) {
+    public boolean startExitBackTransition(final Activity activity) {
         ArrayList<String> pendingExitNames = getPendingExitNames();
         if (pendingExitNames == null || mCalledExitCoordinator != null) {
             return false;
@@ -339,8 +339,7 @@ class ActivityTransitionState {
                 }
 
                 mReturnExitCoordinator = new ExitTransitionCoordinator(
-                        removeTask ? new ExitTransitionCoordinator.TaskRemovingActivityExitTransitionCallbacks(activity)
-                                : new ExitTransitionCoordinator.ActivityExitTransitionCallbacks(activity),
+                        new ExitTransitionCoordinator.ActivityExitTransitionCallbacks(activity),
                         activity.getWindow(), activity.mEnterTransitionListener, pendingExitNames,
                         null, null, true);
                 if (enterViewsTransition != null && decor != null) {

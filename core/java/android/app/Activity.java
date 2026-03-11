@@ -4241,14 +4241,10 @@ public class Activity extends ContextThemeWrapper
         }
 
         @Override
-        public void requestFinish(boolean shouldRemoveTask) {
+        public void requestFinish() {
             Activity activity = mActivityRef.get();
             if (activity != null) {
-                if (shouldRemoveTask) {
-                    activity.mHandler.post(activity::finishAndRemoveTaskAfterTransition);
-                } else {
-                    activity.mHandler.post(activity::finishAfterTransition);
-                }
+                activity.mHandler.post(activity::finishAfterTransition);
             }
         }
     }
@@ -7458,22 +7454,8 @@ public class Activity extends ContextThemeWrapper
      * @see android.app.ActivityOptions#makeSceneTransitionAnimation(Activity, android.util.Pair[])
      */
     public void finishAfterTransition() {
-        if (!mActivityTransitionState.startExitBackTransition(this, false)) {
+        if (!mActivityTransitionState.startExitBackTransition(this)) {
             finish();
-        }
-    }
-
-    /**
-     * Reverses the Activity Scene entry Transition and triggers the calling Activity
-     * to reverse its exit Transition. When the exit Transition completes,
-     * {@link #finishAndRemoveTask()} is called. If no entry Transition was used,
-     * finishAndRemoveTask() is called immediately and the Activity exit Transition is run.
-     * @see #finishAfterTransition()
-     * @hide
-     */
-    public void finishAndRemoveTaskAfterTransition() {
-        if (!mActivityTransitionState.startExitBackTransition(this, true)) {
-            finishAndRemoveTask();
         }
     }
 
